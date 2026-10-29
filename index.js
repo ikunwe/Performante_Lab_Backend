@@ -1,11 +1,19 @@
-const express = require('express');
-const app = express();
-const port = 3000;
+require("dotenv").config({ quiet: true });
+const { createApp } = require("./src/app");
+const { createSupabase, createAdmin } = require("./src/config/supabase");
 
-app.get('/', (req, res) => {
-  res.send('Hello World!');
+const port = Number(process.env.PORT || 3000);
+const app = createApp({
+  supabase: createSupabase(process.env),
+  admin: createAdmin(process.env),
+  createAuthClient: () => createSupabase(process.env),
+  origins: (process.env.FRONTEND_ORIGINS || "http://localhost:4200")
+    .split(",")
+    .map((origin) => origin.trim()),
 });
 
-app.listen(port, () => {
-  console.log(`Server running at http://localhost:${port}/`);
-});
+app.listen(port, () =>
+  console.log(
+    `Performante Lab API running at http://localhost:${port}/api/health`,
+  ),
+);
