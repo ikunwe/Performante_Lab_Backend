@@ -2,6 +2,11 @@ const express = require("express");
 const cors = require("cors");
 const { authRoutes } = require("./routes/auth");
 const { catalogRoutes } = require("./routes/catalog");
+const { requireAuth } = require("./middleware/require-auth");
+const {
+  requireAdmin,
+  requireSuperAdmin,
+} = require("./middleware/require-role");
 
 function createApp({
   supabase,
@@ -26,6 +31,17 @@ function createApp({
   );
   app.use("/api/auth", authRoutes(supabase, { admin, createAuthClient }));
   app.use("/api/catalog", catalogRoutes(admin));
+  // Guard extension routes before mounting them; catalog remains public.
+  app.use(
+    "/api/admin",
+    requireAuth(supabase),
+    requireAdmin(supabase, { admin }),
+  );
+  app.use(
+    "/api/super-admin",
+    requireAuth(supabase),
+    requireSuperAdmin(supabase, { admin }),
+  );
   if (typeof routes === "function") {
     routes(app, { supabase, admin });
   } else if (Array.isArray(routes)) {

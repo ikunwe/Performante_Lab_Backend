@@ -1,6 +1,9 @@
 const { Router } = require("express");
 const { requireAuth } = require("../middleware/require-auth");
-const { resolveUserProfile } = require("../middleware/require-role");
+const {
+  resolveUserProfile,
+  requireActive,
+} = require("../middleware/require-role");
 const { rateLimit } = require("express-rate-limit");
 
 function authRoutes(supabase, { admin, createAuthClient } = {}) {
@@ -59,6 +62,15 @@ function authRoutes(supabase, { admin, createAuthClient } = {}) {
           password,
         });
         if (error || !data.session) return invalid();
+        const state = await resolveUserProfile(
+          { authUser: { id: profile.data } },
+          admin,
+        );
+        if (state.status !== "Active")
+          return res.status(403).json({
+            error: "ACCOUNT_INACTIVE",
+            message: "บัญชีนี้ถูกระงับการใช้งานชั่วคราว",
+          });
         return res.json({
           access_token: data.session.access_token,
           refresh_token: data.session.refresh_token,
@@ -71,22 +83,26 @@ function authRoutes(supabase, { admin, createAuthClient } = {}) {
       }
     },
   );
-  router.get("/me", requireAuth(supabase), async (req, res) => {
-    res.set("Cache-Control", "no-store");
-    const user = req.authUser;
-    const client = admin || supabase;
-    const profile = await resolveUserProfile(req, client);
-    res.json({
-      user: {
-        id: user.id,
-        email: user.email || null,
-        name: user.user_metadata?.full_name || user.email || "Account",
-        avatarUrl: user.user_metadata?.avatar_url || null,
-        role: profile.role || "User",
-        status: profile.status || "Active",
-      },
-    });
-  });
+  router.get(
+    "/me",
+    requireAuth(supabase),
+    requireActive(supabase, { admin }),
+    (req, res) => {
+      res.set("Cache-Control", "no-store");
+      const user = req.authUser;
+      const profile = req.userProfile;
+      res.json({
+        user: {
+          id: user.id,
+          email: user.email || null,
+          name: user.user_metadata?.full_name || user.email || "Account",
+          avatarUrl: user.user_metadata?.avatar_url || null,
+          role: profile.role || "User",
+          status: profile.status || "Active",
+        },
+      });
+    },
+  );
   return router;
 }
 

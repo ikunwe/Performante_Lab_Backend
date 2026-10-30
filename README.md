@@ -11,7 +11,7 @@ Express API สำหรับตรวจ Supabase access token แยกจา
 | Endpoint | Authentication | ผลลัพธ์ |
 | --- | --- | --- |
 | GET /api/health | ไม่ต้องมี | สถานะ API และว่ามี config Auth หรือไม่ |
-| GET /api/auth/me | Bearer access token | ข้อมูลผู้ใช้ที่ Supabase ยืนยันแล้ว: id, email, name, avatarUrl |
+| GET /api/auth/me | Bearer access token + บัญชี Active | ข้อมูลผู้ใช้ที่ Supabase ยืนยันแล้ว: id, email, name, avatarUrl, role, status |
 
 ส่วนต่าง ๆ แยกใน `src/config`, `src/middleware`, `src/routes` และ `src/app.js` เพื่อเพิ่ม protected API ต่อได้ Middleware ใช้ `supabase.auth.getUser(token)` ไม่เชื่อ user ID ที่ส่งจาก browser ไม่บันทึก token ลง log และ response ของ Auth ใช้ `Cache-Control: no-store`
 
@@ -19,12 +19,23 @@ Express API สำหรับตรวจ Supabase access token แยกจา
 
 คู่มือตั้ง Supabase, Google Cloud Console และตัวอย่าง env อยู่ใน Frontend: `docs/google-login-setup.md` ทั้งสอง repo มี `.env.example`; `.env` ไม่เข้า Git
 
-Backend นี้ยังไม่มี API เก็บ Builds หรือข้อมูลรถ Google Login ทำผ่าน Supabase Auth ไม่จำเป็นต้องใช้ service_role key หรือ database password
+Backend มี API อ่านแบรนด์/รุ่นรถแล้ว แต่ยังไม่มี API เก็บ Builds Google Login ทำผ่าน Supabase Auth ส่วนการตรวจสถานะบัญชีและสิทธิ์บน Backend ต้องใช้ `SUPABASE_SECRET_KEY` ฝั่ง server
 
 ## Profile และ Username Login
 
 รัน SQL ใน `supabase/migrations/202610290001_profiles.sql` แล้ว `supabase/migrations/202610290003_google_name_username.sql` ที่ Supabase SQL Editor เพื่อเพิ่ม username แบบไม่ซ้ำและฟังก์ชันสถานะบัญชี ซึ่งตรวจว่าตั้งรหัสผ่านจริงจาก Supabase Auth โดยไม่ส่ง password hash ออกมา Username เริ่มต้นจากชื่อ Google รองรับภาษาไทยและเว้นวรรค และเปลี่ยนเองได้ หากเคยรัน 001/002 แล้วให้รันเฉพาะ 003
 
-`POST /api/auth/login` รับ JSON `{ "username": "driver", "password": "..." }` และคืน access_token/refresh_token หลังตรวจรหัสผ่านกับ Supabase สำเร็จเท่านั้น คีย์ `SUPABASE_SECRET_KEY` ใน Backend `.env` จำเป็นสำหรับค้นหาบัญชีจาก username แบบส่วนตัว ห้ามใช้คีย์นี้ใน Frontend ไม่จำเป็นสำหรับ Google Login หรือการตั้งค่าโปรไฟล์ของตัวเอง
+`POST /api/auth/login` รับ JSON `{ "username": "driver", "password": "..." }` และคืน access_token/refresh_token หลังตรวจรหัสผ่านและสถานะ Active สำเร็จเท่านั้น คีย์ `SUPABASE_SECRET_KEY` ใน Backend `.env` จำเป็นสำหรับค้นหาบัญชีจาก username และตรวจสิทธิ์/สถานะบัญชี ห้ามใช้คีย์นี้ใน Frontend การยืนยันตัวตน Google และตั้งค่าโปรไฟล์ผ่าน Supabase SDK โดยตรงยังทำที่ Frontend
 
 รายละเอียดการตั้งค่าอยู่ที่ Frontend `docs/profile-setup.md` มี rate limit สำหรับ Username Login แต่ยังเป็น memory store ต่อ process; ก่อน deploy หลาย process ให้ตั้ง store ร่วมกันและ trust proxy ให้ตรงกับระบบจริง
+
+## RBAC หลัง merge
+
+- `/api/auth/me` ตรวจ token และสถานะบัญชีด้วย private backend client ก่อนคืนข้อมูล บัญชี `InActive` ได้ 403; ตรวจ profile ไม่สำเร็จ ค่าบทบาท/สถานะไม่ถูกต้อง หรือไม่ได้ตั้ง private client ได้ 503 โดยไม่เปิดเผยข้อความภายใน
+- Profile ที่ยืนยันจากฐานข้อมูลแล้วว่าไม่มีแถว ได้สิทธิ์เริ่มต้น User/Active เพื่อรองรับผู้ใช้ใหม่ กรณี query ล้มเหลวไม่ถือว่าเป็นผู้ใช้ใหม่
+- Username Login ตรวจสถานะหลังยืนยันรหัสผ่าน ก่อนส่ง token ออกมา การป้องกันนี้ครอบคลุม API ของ Backend ไม่ใช่การปิด Supabase Auth session หรือป้องกันการเข้าฐานข้อมูลตรงจาก Frontend; การเข้าฐานข้อมูลตรงต้องบังคับด้วย RLS ของแต่ละตาราง
+- กลุ่ม `/api/admin` และ `/api/super-admin` ตรวจ token, Active และ role ก่อนลงทะเบียน extension routes ผ่าน `createApp({ routes })` แล้ว แต่ยังไม่มี CRUD Admin API ใหม่
+- `requireAdmin` และ `requireSuperAdmin` ตรวจ Active ในตัว ใช้ร่วมกับ `requireAuth` เสมอ `/api/catalog` ยังคงเป็นข้อมูลสาธารณะ
+- SQL `202610310001_admin_rbac_and_features.sql` ใช้ค่า default เฉพาะตอนเพิ่มคอลัมน์ ไม่รีเซ็ต role/status ของบัญชีเดิมเมื่อรันซ้ำ การแก้รอบนี้ไม่ต้องเปลี่ยนข้อมูลใน Supabase และไม่ได้กู้สิทธิ์ที่อาจเคยถูก SQL รุ่นเก่ารีเซ็ตไปแล้ว
+
+`.gitattributes` ป้องกัน Git แปลง newline ของ source snapshots ใน `data/reference/raw` และไฟล์ `.gz` เพื่อรักษา SHA-256 เดิมทั้ง Windows และ Linux ห้ามแก้ checksum ให้ยอมรับข้อมูลที่เปลี่ยนเนื้อหา
