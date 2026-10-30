@@ -19,7 +19,7 @@ Express API สำหรับตรวจ Supabase access token แยกจา
 
 คู่มือตั้ง Supabase, Google Cloud Console และตัวอย่าง env อยู่ใน Frontend: `docs/google-login-setup.md` ทั้งสอง repo มี `.env.example`; `.env` ไม่เข้า Git
 
-Backend มี API อ่านแบรนด์/รุ่นรถแล้ว แต่ยังไม่มี API เก็บ Builds Google Login ทำผ่าน Supabase Auth ส่วนการตรวจสถานะบัญชีและสิทธิ์บน Backend ต้องใช้ `SUPABASE_SECRET_KEY` ฝั่ง server
+Backend มี API อ่านแบรนด์/รุ่นรถและบันทึก Builds แล้ว Google Login ทำผ่าน Supabase Auth ส่วนการตรวจสถานะบัญชีและสิทธิ์บน Backend ต้องใช้ `SUPABASE_SECRET_KEY` ฝั่ง server
 
 ## Profile และ Username Login
 
@@ -39,3 +39,26 @@ Backend มี API อ่านแบรนด์/รุ่นรถแล้ว
 - SQL `202610310001_admin_rbac_and_features.sql` ใช้ค่า default เฉพาะตอนเพิ่มคอลัมน์ ไม่รีเซ็ต role/status ของบัญชีเดิมเมื่อรันซ้ำ การแก้รอบนี้ไม่ต้องเปลี่ยนข้อมูลใน Supabase และไม่ได้กู้สิทธิ์ที่อาจเคยถูก SQL รุ่นเก่ารีเซ็ตไปแล้ว
 
 `.gitattributes` ป้องกัน Git แปลง newline ของ source snapshots ใน `data/reference/raw` และไฟล์ `.gz` เพื่อรักษา SHA-256 เดิมทั้ง Windows และ Linux ห้ามแก้ checksum ให้ยอมรับข้อมูลที่เปลี่ยนเนื้อหา
+
+## My Builds API
+
+ทุก endpoint ใต้ `/api/builds` ต้องใช้ Bearer token และบัญชี Active:
+
+- GET `/api/builds?offset=0`: โหลด Build ของตัวเอง ครั้งละ 100 รายการ พร้อม nextOffset
+- POST `/api/builds`: `{ id: UUID, name, carId, partIds }` บันทึกรายการใหม่เป็น private โดยกำหนด user_id จาก token เท่านั้น UUID เดิมกับ payload เดิมใช้ retry ได้
+- PUT `/api/builds/:id`: `{ name, carId, partIds }` แก้ไขเฉพาะรายการของตัวเอง
+- DELETE `/api/builds/:id`: soft delete เฉพาะรายการของตัวเอง (retry ได้)
+
+ใช้ตาราง builds เดิม ไม่ต้องรัน SQL เพิ่ม โดย title = name, tag = stable carId,
+parts = part IDs และ image_url = ภาพจาก catalog ฝั่ง server ข้อมูลรถ canonical
+ถูกสร้างเป็น carSnapshot ใน response ไม่เชื่อข้อมูลรถหรือเจ้าของที่ browser ส่งมา
+Full Body Kit ใช้ร่วมกับพาร์ทแยกไม่ได้ แต่ละหมวดเลือกได้หนึ่งรายการ
+
+`data/build-assets.json` คือข้อมูลตรวจสอบ asset/part ที่ส่งออกจาก frontend watcher
+และ prebuild ต้อง commit/deploy ไฟล์นี้พร้อม backend ให้ตรงกับ assets เวอร์ชันที่ใช้
+ถ้าแยก repo คนละที่ ให้คัดลอก frontend assets/build-catalog.json มายังไฟล์นี้
+อ่านรายละเอียดเพิ่มที่ frontend docs/cloud-builds.md ภาพจริงไม่ถูกส่งเข้าฐานข้อมูล
+
+`node scripts/smoke-builds-live.js` เป็น smoke test แบบเลือกเรียกเอง ต้องตั้ง env แล้ว
+สคริปต์สร้างบัญชีชั่วคราวที่ยืนยันอีเมลแล้ว (ไม่ส่งเมล) ทดสอบ API กับ Supabase จริง
+และล้างเฉพาะบัญชี/ข้อมูลทดสอบของตัวเองหลังจบ ไม่อยู่ใน npm test ปกติ
