@@ -1,0 +1,4 @@
+[
+  { "brandId": "honda", "model": "Civic Type-R", "generation": "Civic Type-R (2022)", "chassisCodes": ["FL5"], "sourceUrl": "https://global.honda/en/stories/048.html" },
+  { "brandId": "honda", "model": "S2000", "generation": "S2000 (1999)", "chassisCodes": ["AP1", "AP2"], "sourceUrl": "https://www.mugen-power.com/common/english/partslist/08.html" }
+]

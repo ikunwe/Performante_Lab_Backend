@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "retrievedAt": "2026-10-29T17:27:31.480Z",
+  "logoDatasetRevision": "e334a4d2e8742108ba164c629dff5636576d3808",
+  "sources": [
+    {
+      "id": "car-logos-dataset",
+      "filename": "car-logos.json",
+      "url": "https://raw.githubusercontent.com/filippofilip95/car-logos-dataset/e334a4d2e8742108ba164c629dff5636576d3808/logos/data.json",
+      "sha256": "ced56c16b3d62d6cac09418f33c2e516e07c3cdec588d9d55a1c735b7e162409"
+    },
+    {
+      "id": "car-logos-readme",
+      "filename": "car-logos-README.md",
+      "url": "https://raw.githubusercontent.com/filippofilip95/car-logos-dataset/e334a4d2e8742108ba164c629dff5636576d3808/README.md",
+      "sha256": "8284ac610813897566e04b1d7740e7efaf2db0c32fdbf90093b226d23303f388"
+    },
+    {
+      "id": "nhtsa-passenger-car",
+      "filename": "nhtsa-passenger-car.json",
+      "vehicleTypeId": 2,
+      "url": "https://vpic.nhtsa.dot.gov/api/vehicles/GetMakesForVehicleType/car?format=json",
+      "sha256": "9ede9a748f7f583ba2f9c9c598f10bceddfa96f0fb409e6068ee394e1a689380"
+    },
+    {
+      "id": "nhtsa-mpv",
+      "filename": "nhtsa-mpv.json",
+      "vehicleTypeId": 7,
+      "url": "https://vpic.nhtsa.dot.gov/api/vehicles/GetMakesForVehicleType/Multipurpose%20Passenger%20Vehicle?format=json",
+      "sha256": "d83b1d710341b5e04d07f71681fc198e627ce810cfbd275c80ad10ccc3ad188f"
+    }
+  ]
+}

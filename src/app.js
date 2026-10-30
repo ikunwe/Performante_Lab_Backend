@@ -1,6 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const { authRoutes } = require("./routes/auth");
+const { catalogRoutes } = require("./routes/catalog");
 
 function createApp({
   supabase,
@@ -24,6 +25,7 @@ function createApp({
     res.json({ status: "ok", authConfigured: !!supabase }),
   );
   app.use("/api/auth", authRoutes(supabase, { admin, createAuthClient }));
+  app.use("/api/catalog", catalogRoutes(admin));
   if (typeof routes === "function") {
     routes(app, { supabase, admin });
   } else if (Array.isArray(routes)) {

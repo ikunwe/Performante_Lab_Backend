@@ -1,0 +1,1013 @@
+{
+  "schemaVersion": 1,
+  "collectedAt": "2026-10-29T17:27:31.480Z",
+  "scope": "Project selection: 28 Thai-market, Chinese and enthusiast brands. Editorial project scope, not a sales ranking or a list of buildable models.",
+  "counts": {
+    "total": 28,
+    "vehicleRegistryMatched": 16,
+    "sourceOnly": 12,
+    "logoReferences": 22,
+    "officialSupplement": 13,
+    "starterSelection": 28
+  },
+  "sources": [
+    {
+      "id": "car-logos-dataset",
+      "filename": "car-logos.json",
+      "url": "https://raw.githubusercontent.com/filippofilip95/car-logos-dataset/e334a4d2e8742108ba164c629dff5636576d3808/logos/data.json",
+      "sha256": "ced56c16b3d62d6cac09418f33c2e516e07c3cdec588d9d55a1c735b7e162409"
+    },
+    {
+      "id": "car-logos-readme",
+      "filename": "car-logos-README.md",
+      "url": "https://raw.githubusercontent.com/filippofilip95/car-logos-dataset/e334a4d2e8742108ba164c629dff5636576d3808/README.md",
+      "sha256": "8284ac610813897566e04b1d7740e7efaf2db0c32fdbf90093b226d23303f388"
+    },
+    {
+      "id": "nhtsa-passenger-car",
+      "filename": "nhtsa-passenger-car.json",
+      "vehicleTypeId": 2,
+      "url": "https://vpic.nhtsa.dot.gov/api/vehicles/GetMakesForVehicleType/car?format=json",
+      "sha256": "9ede9a748f7f583ba2f9c9c598f10bceddfa96f0fb409e6068ee394e1a689380"
+    },
+    {
+      "id": "nhtsa-mpv",
+      "filename": "nhtsa-mpv.json",
+      "vehicleTypeId": 7,
+      "url": "https://vpic.nhtsa.dot.gov/api/vehicles/GetMakesForVehicleType/Multipurpose%20Passenger%20Vehicle?format=json",
+      "sha256": "d83b1d710341b5e04d07f71681fc198e627ce810cfbd275c80ad10ccc3ad188f"
+    }
+  ],
+  "supplement": {
+    "filename": "official-additions.json",
+    "count": 13,
+    "sha256": "31f6cdca776b4624ffb8d71ffc538ea12e147a3c472de1876bb0f02fe736cd14"
+  },
+  "brands": [
+    {
+      "id": "aion",
+      "slug": "aion",
+      "name": "AION",
+      "aliases": [],
+      "nhtsaMakeIds": [],
+      "vehicleTypes": [],
+      "logoReferenceUrl": null,
+      "logoOriginalSourceUrl": null,
+      "country": null,
+      "operatingStatus": "unknown",
+      "reviewStatus": "official_brand_page",
+      "isBuildReady": false,
+      "sources": [
+        {
+          "sourceId": "official-supplement",
+          "url": "https://www.gacgroup.com/en/news/article/aion-officially-launches-in-the-uk--accelerating-global-expansion-and-redefining-smart-mobility-in-europe-343",
+          "verifiedAt": "2026-10-30"
+        }
+      ],
+      "parentBrandId": null
+    },
+    {
+      "id": "bmw",
+      "slug": "bmw",
+      "name": "BMW",
+      "aliases": [],
+      "nhtsaMakeIds": [
+        452
+      ],
+      "vehicleTypes": [
+        {
+          "id": 2,
+          "name": "Passenger Car"
+        },
+        {
+          "id": 7,
+          "name": "Multipurpose Passenger Vehicle (MPV)"
+        }
+      ],
+      "logoReferenceUrl": "https://raw.githubusercontent.com/filippofilip95/car-logos-dataset/e334a4d2e8742108ba164c629dff5636576d3808/logos/optimized/bmw.png",
+      "logoOriginalSourceUrl": "https://www.carlogos.org/car-logos/bmw-logo-2020-gray.png",
+      "country": null,
+      "operatingStatus": "unknown",
+      "reviewStatus": "vehicle_registry_match",
+      "isBuildReady": false,
+      "sources": [
+        {
+          "sourceId": "car-logos-dataset",
+          "sourceName": "BMW",
+          "sourceSlug": "bmw"
+        },
+        {
+          "sourceId": "nhtsa-passenger-car",
+          "makeId": 452,
+          "sourceName": "BMW"
+        },
+        {
+          "sourceId": "nhtsa-mpv",
+          "makeId": 452,
+          "sourceName": "BMW"
+        }
+      ],
+      "parentBrandId": null
+    },
+    {
+      "id": "byd",
+      "slug": "byd",
+      "name": "BYD",
+      "aliases": [],
+      "nhtsaMakeIds": [
+        1991
+      ],
+      "vehicleTypes": [
+        {
+          "id": 2,
+          "name": "Passenger Car"
+        }
+      ],
+      "logoReferenceUrl": "https://raw.githubusercontent.com/filippofilip95/car-logos-dataset/e334a4d2e8742108ba164c629dff5636576d3808/logos/optimized/byd.png",
+      "logoOriginalSourceUrl": "https://www.carlogos.org/logo/BYD-logo-2007-2560x1440.png",
+      "country": null,
+      "operatingStatus": "unknown",
+      "reviewStatus": "vehicle_registry_match",
+      "isBuildReady": false,
+      "sources": [
+        {
+          "sourceId": "car-logos-dataset",
+          "sourceName": "BYD",
+          "sourceSlug": "byd"
+        },
+        {
+          "sourceId": "nhtsa-passenger-car",
+          "makeId": 1991,
+          "sourceName": "BYD"
+        }
+      ],
+      "parentBrandId": null
+    },
+    {
+      "id": "changan",
+      "slug": "changan",
+      "name": "Changan",
+      "aliases": [],
+      "nhtsaMakeIds": [],
+      "vehicleTypes": [],
+      "logoReferenceUrl": "https://raw.githubusercontent.com/filippofilip95/car-logos-dataset/e334a4d2e8742108ba164c629dff5636576d3808/logos/optimized/changan.png",
+      "logoOriginalSourceUrl": "https://www.carlogos.org/logo/Changan-logo-2010-2560x1440.png",
+      "country": null,
+      "operatingStatus": "unknown",
+      "reviewStatus": "source_only",
+      "isBuildReady": false,
+      "sources": [
+        {
+          "sourceId": "car-logos-dataset",
+          "sourceName": "Changan",
+          "sourceSlug": "changan"
+        }
+      ],
+      "parentBrandId": null
+    },
+    {
+      "id": "deepal",
+      "slug": "deepal",
+      "name": "DEEPAL",
+      "aliases": [],
+      "nhtsaMakeIds": [],
+      "vehicleTypes": [],
+      "logoReferenceUrl": null,
+      "logoOriginalSourceUrl": null,
+      "country": null,
+      "operatingStatus": "unknown",
+      "reviewStatus": "official_brand_page",
+      "isBuildReady": false,
+      "sources": [
+        {
+          "sourceId": "official-supplement",
+          "url": "https://www.globalchangan.com/",
+          "verifiedAt": "2026-10-30"
+        }
+      ],
+      "parentBrandId": null
+    },
+    {
+      "id": "denza",
+      "slug": "denza",
+      "name": "Denza",
+      "aliases": [],
+      "nhtsaMakeIds": [],
+      "vehicleTypes": [],
+      "logoReferenceUrl": null,
+      "logoOriginalSourceUrl": null,
+      "country": null,
+      "operatingStatus": "unknown",
+      "reviewStatus": "official_brand_page",
+      "isBuildReady": false,
+      "sources": [
+        {
+          "sourceId": "official-supplement",
+          "url": "https://www1.hkexnews.hk/listedco/listconews/sehk/2025/0324/2025032401228.pdf",
+          "verifiedAt": "2026-10-30"
+        }
+      ],
+      "parentBrandId": null
+    },
+    {
+      "id": "ferrari",
+      "slug": "ferrari",
+      "name": "Ferrari",
+      "aliases": [
+        "FERRARI"
+      ],
+      "nhtsaMakeIds": [
+        603
+      ],
+      "vehicleTypes": [
+        {
+          "id": 2,
+          "name": "Passenger Car"
+        },
+        {
+          "id": 7,
+          "name": "Multipurpose Passenger Vehicle (MPV)"
+        }
+      ],
+      "logoReferenceUrl": "https://raw.githubusercontent.com/filippofilip95/car-logos-dataset/e334a4d2e8742108ba164c629dff5636576d3808/logos/optimized/ferrari.png",
+      "logoOriginalSourceUrl": "https://www.carlogos.org/car-logos/ferrari-logo-2002-640.png",
+      "country": null,
+      "operatingStatus": "unknown",
+      "reviewStatus": "vehicle_registry_match",
+      "isBuildReady": false,
+      "sources": [
+        {
+          "sourceId": "car-logos-dataset",
+          "sourceName": "Ferrari",
+          "sourceSlug": "ferrari"
+        },
+        {
+          "sourceId": "nhtsa-passenger-car",
+          "makeId": 603,
+          "sourceName": "FERRARI"
+        },
+        {
+          "sourceId": "nhtsa-mpv",
+          "makeId": 603,
+          "sourceName": "FERRARI"
+        }
+      ],
+      "parentBrandId": null
+    },
+    {
+      "id": "ford",
+      "slug": "ford",
+      "name": "Ford",
+      "aliases": [
+        "FORD"
+      ],
+      "nhtsaMakeIds": [
+        460
+      ],
+      "vehicleTypes": [
+        {
+          "id": 2,
+          "name": "Passenger Car"
+        },
+        {
+          "id": 7,
+          "name": "Multipurpose Passenger Vehicle (MPV)"
+        }
+      ],
+      "logoReferenceUrl": "https://raw.githubusercontent.com/filippofilip95/car-logos-dataset/e334a4d2e8742108ba164c629dff5636576d3808/logos/optimized/ford.png",
+      "logoOriginalSourceUrl": "https://www.carlogos.org/car-logos/ford-logo-2017-640.png",
+      "country": null,
+      "operatingStatus": "unknown",
+      "reviewStatus": "vehicle_registry_match",
+      "isBuildReady": false,
+      "sources": [
+        {
+          "sourceId": "car-logos-dataset",
+          "sourceName": "Ford",
+          "sourceSlug": "ford"
+        },
+        {
+          "sourceId": "nhtsa-passenger-car",
+          "makeId": 460,
+          "sourceName": "FORD"
+        },
+        {
+          "sourceId": "nhtsa-mpv",
+          "makeId": 460,
+          "sourceName": "FORD"
+        }
+      ],
+      "parentBrandId": null
+    },
+    {
+      "id": "great-wall",
+      "slug": "great-wall",
+      "name": "GWM",
+      "aliases": [
+        "Great Wall",
+        "Great Wall Motor"
+      ],
+      "nhtsaMakeIds": [],
+      "vehicleTypes": [],
+      "logoReferenceUrl": "https://raw.githubusercontent.com/filippofilip95/car-logos-dataset/e334a4d2e8742108ba164c629dff5636576d3808/logos/optimized/great-wall.png",
+      "logoOriginalSourceUrl": "https://www.carlogos.org/logo/Great-Wall-logo-2007-2048x2048.png",
+      "country": null,
+      "operatingStatus": "unknown",
+      "reviewStatus": "source_only",
+      "isBuildReady": false,
+      "sources": [
+        {
+          "sourceId": "car-logos-dataset",
+          "sourceName": "Great Wall",
+          "sourceSlug": "great-wall"
+        }
+      ],
+      "parentBrandId": null
+    },
+    {
+      "id": "haval",
+      "slug": "haval",
+      "name": "Haval",
+      "aliases": [],
+      "nhtsaMakeIds": [],
+      "vehicleTypes": [],
+      "logoReferenceUrl": "https://raw.githubusercontent.com/filippofilip95/car-logos-dataset/e334a4d2e8742108ba164c629dff5636576d3808/logos/optimized/haval.png",
+      "logoOriginalSourceUrl": "https://www.carlogos.org/logo/Haval-logo-1366x768.png",
+      "country": null,
+      "operatingStatus": "unknown",
+      "reviewStatus": "source_only",
+      "isBuildReady": false,
+      "sources": [
+        {
+          "sourceId": "car-logos-dataset",
+          "sourceName": "Haval",
+          "sourceSlug": "haval"
+        }
+      ],
+      "parentBrandId": "great-wall"
+    },
+    {
+      "id": "honda",
+      "slug": "honda",
+      "name": "Honda",
+      "aliases": [
+        "HONDA"
+      ],
+      "nhtsaMakeIds": [
+        474
+      ],
+      "vehicleTypes": [
+        {
+          "id": 2,
+          "name": "Passenger Car"
+        },
+        {
+          "id": 7,
+          "name": "Multipurpose Passenger Vehicle (MPV)"
+        }
+      ],
+      "logoReferenceUrl": "https://raw.githubusercontent.com/filippofilip95/car-logos-dataset/e334a4d2e8742108ba164c629dff5636576d3808/logos/optimized/honda.png",
+      "logoOriginalSourceUrl": "https://www.carlogos.org/car-logos/honda-logo-2000-full-640.png",
+      "country": null,
+      "operatingStatus": "unknown",
+      "reviewStatus": "vehicle_registry_match",
+      "isBuildReady": false,
+      "sources": [
+        {
+          "sourceId": "car-logos-dataset",
+          "sourceName": "Honda",
+          "sourceSlug": "honda"
+        },
+        {
+          "sourceId": "nhtsa-passenger-car",
+          "makeId": 474,
+          "sourceName": "HONDA"
+        },
+        {
+          "sourceId": "nhtsa-mpv",
+          "makeId": 474,
+          "sourceName": "HONDA"
+        }
+      ],
+      "parentBrandId": null
+    },
+    {
+      "id": "isuzu",
+      "slug": "isuzu",
+      "name": "Isuzu",
+      "aliases": [
+        "ISUZU"
+      ],
+      "nhtsaMakeIds": [
+        542
+      ],
+      "vehicleTypes": [
+        {
+          "id": 2,
+          "name": "Passenger Car"
+        },
+        {
+          "id": 7,
+          "name": "Multipurpose Passenger Vehicle (MPV)"
+        }
+      ],
+      "logoReferenceUrl": "https://raw.githubusercontent.com/filippofilip95/car-logos-dataset/e334a4d2e8742108ba164c629dff5636576d3808/logos/optimized/isuzu.png",
+      "logoOriginalSourceUrl": "https://www.carlogos.org/logo/Isuzu-logo-1991-3840x2160.png",
+      "country": null,
+      "operatingStatus": "unknown",
+      "reviewStatus": "vehicle_registry_match",
+      "isBuildReady": false,
+      "sources": [
+        {
+          "sourceId": "car-logos-dataset",
+          "sourceName": "Isuzu",
+          "sourceSlug": "isuzu"
+        },
+        {
+          "sourceId": "nhtsa-passenger-car",
+          "makeId": 542,
+          "sourceName": "ISUZU"
+        },
+        {
+          "sourceId": "nhtsa-mpv",
+          "makeId": 542,
+          "sourceName": "ISUZU"
+        }
+      ],
+      "parentBrandId": null
+    },
+    {
+      "id": "jaecoo",
+      "slug": "jaecoo",
+      "name": "JAECOO",
+      "aliases": [],
+      "nhtsaMakeIds": [],
+      "vehicleTypes": [],
+      "logoReferenceUrl": null,
+      "logoOriginalSourceUrl": null,
+      "country": null,
+      "operatingStatus": "unknown",
+      "reviewStatus": "official_brand_page",
+      "isBuildReady": false,
+      "sources": [
+        {
+          "sourceId": "official-supplement",
+          "url": "https://www.omodajaecoo.com/global/",
+          "verifiedAt": "2026-10-30"
+        }
+      ],
+      "parentBrandId": null
+    },
+    {
+      "id": "lamborghini",
+      "slug": "lamborghini",
+      "name": "Lamborghini",
+      "aliases": [
+        "LAMBORGHINI"
+      ],
+      "nhtsaMakeIds": [
+        502
+      ],
+      "vehicleTypes": [
+        {
+          "id": 2,
+          "name": "Passenger Car"
+        },
+        {
+          "id": 7,
+          "name": "Multipurpose Passenger Vehicle (MPV)"
+        }
+      ],
+      "logoReferenceUrl": "https://raw.githubusercontent.com/filippofilip95/car-logos-dataset/e334a4d2e8742108ba164c629dff5636576d3808/logos/optimized/lamborghini.png",
+      "logoOriginalSourceUrl": "https://www.carlogos.org/car-logos/lamborghini-logo-1998-640.png",
+      "country": null,
+      "operatingStatus": "unknown",
+      "reviewStatus": "vehicle_registry_match",
+      "isBuildReady": false,
+      "sources": [
+        {
+          "sourceId": "car-logos-dataset",
+          "sourceName": "Lamborghini",
+          "sourceSlug": "lamborghini"
+        },
+        {
+          "sourceId": "nhtsa-passenger-car",
+          "makeId": 502,
+          "sourceName": "LAMBORGHINI"
+        },
+        {
+          "sourceId": "nhtsa-mpv",
+          "makeId": 502,
+          "sourceName": "LAMBORGHINI"
+        }
+      ],
+      "parentBrandId": null
+    },
+    {
+      "id": "mazda",
+      "slug": "mazda",
+      "name": "Mazda",
+      "aliases": [
+        "MAZDA"
+      ],
+      "nhtsaMakeIds": [
+        473
+      ],
+      "vehicleTypes": [
+        {
+          "id": 2,
+          "name": "Passenger Car"
+        },
+        {
+          "id": 7,
+          "name": "Multipurpose Passenger Vehicle (MPV)"
+        }
+      ],
+      "logoReferenceUrl": "https://raw.githubusercontent.com/filippofilip95/car-logos-dataset/e334a4d2e8742108ba164c629dff5636576d3808/logos/optimized/mazda.png",
+      "logoOriginalSourceUrl": "https://www.carlogos.org/car-logos/mazda-logo-2018-vertical-640.png",
+      "country": null,
+      "operatingStatus": "unknown",
+      "reviewStatus": "vehicle_registry_match",
+      "isBuildReady": false,
+      "sources": [
+        {
+          "sourceId": "car-logos-dataset",
+          "sourceName": "Mazda",
+          "sourceSlug": "mazda"
+        },
+        {
+          "sourceId": "nhtsa-passenger-car",
+          "makeId": 473,
+          "sourceName": "MAZDA"
+        },
+        {
+          "sourceId": "nhtsa-mpv",
+          "makeId": 473,
+          "sourceName": "MAZDA"
+        }
+      ],
+      "parentBrandId": null
+    },
+    {
+      "id": "mercedes-benz",
+      "slug": "mercedes-benz",
+      "name": "Mercedes-Benz",
+      "aliases": [
+        "MERCEDES-BENZ"
+      ],
+      "nhtsaMakeIds": [
+        449
+      ],
+      "vehicleTypes": [
+        {
+          "id": 2,
+          "name": "Passenger Car"
+        },
+        {
+          "id": 7,
+          "name": "Multipurpose Passenger Vehicle (MPV)"
+        }
+      ],
+      "logoReferenceUrl": "https://raw.githubusercontent.com/filippofilip95/car-logos-dataset/e334a4d2e8742108ba164c629dff5636576d3808/logos/optimized/mercedes-benz.png",
+      "logoOriginalSourceUrl": "https://www.carlogos.org/logo/Mercedes-Benz-logo-2011-1920x1080.png",
+      "country": null,
+      "operatingStatus": "unknown",
+      "reviewStatus": "vehicle_registry_match",
+      "isBuildReady": false,
+      "sources": [
+        {
+          "sourceId": "car-logos-dataset",
+          "sourceName": "Mercedes-Benz",
+          "sourceSlug": "mercedes-benz"
+        },
+        {
+          "sourceId": "nhtsa-passenger-car",
+          "makeId": 449,
+          "sourceName": "MERCEDES-BENZ"
+        },
+        {
+          "sourceId": "nhtsa-mpv",
+          "makeId": 449,
+          "sourceName": "MERCEDES-BENZ"
+        }
+      ],
+      "parentBrandId": null
+    },
+    {
+      "id": "mg",
+      "slug": "mg",
+      "name": "MG",
+      "aliases": [],
+      "nhtsaMakeIds": [],
+      "vehicleTypes": [],
+      "logoReferenceUrl": "https://raw.githubusercontent.com/filippofilip95/car-logos-dataset/e334a4d2e8742108ba164c629dff5636576d3808/logos/optimized/mg.png",
+      "logoOriginalSourceUrl": "https://www.carlogos.org/logo/MG-logo-red-2010-1920x1080.png",
+      "country": null,
+      "operatingStatus": "unknown",
+      "reviewStatus": "source_only",
+      "isBuildReady": false,
+      "sources": [
+        {
+          "sourceId": "car-logos-dataset",
+          "sourceName": "MG",
+          "sourceSlug": "mg"
+        }
+      ],
+      "parentBrandId": null
+    },
+    {
+      "id": "mitsubishi",
+      "slug": "mitsubishi",
+      "name": "Mitsubishi",
+      "aliases": [
+        "MITSUBISHI"
+      ],
+      "nhtsaMakeIds": [
+        481
+      ],
+      "vehicleTypes": [
+        {
+          "id": 2,
+          "name": "Passenger Car"
+        },
+        {
+          "id": 7,
+          "name": "Multipurpose Passenger Vehicle (MPV)"
+        }
+      ],
+      "logoReferenceUrl": "https://raw.githubusercontent.com/filippofilip95/car-logos-dataset/e334a4d2e8742108ba164c629dff5636576d3808/logos/optimized/mitsubishi.png",
+      "logoOriginalSourceUrl": "https://www.carlogos.org/logo/Mitsubishi-logo-2000x2500.png",
+      "country": null,
+      "operatingStatus": "unknown",
+      "reviewStatus": "vehicle_registry_match",
+      "isBuildReady": false,
+      "sources": [
+        {
+          "sourceId": "car-logos-dataset",
+          "sourceName": "Mitsubishi",
+          "sourceSlug": "mitsubishi"
+        },
+        {
+          "sourceId": "nhtsa-passenger-car",
+          "makeId": 481,
+          "sourceName": "MITSUBISHI"
+        },
+        {
+          "sourceId": "nhtsa-mpv",
+          "makeId": 481,
+          "sourceName": "MITSUBISHI"
+        }
+      ],
+      "parentBrandId": null
+    },
+    {
+      "id": "neta",
+      "slug": "neta",
+      "name": "NETA",
+      "aliases": [],
+      "nhtsaMakeIds": [],
+      "vehicleTypes": [],
+      "logoReferenceUrl": null,
+      "logoOriginalSourceUrl": null,
+      "country": null,
+      "operatingStatus": "unknown",
+      "reviewStatus": "official_brand_page",
+      "isBuildReady": false,
+      "sources": [
+        {
+          "sourceId": "official-supplement",
+          "url": "https://www.neta.co.th/en/aboutus",
+          "verifiedAt": "2026-10-30"
+        }
+      ],
+      "parentBrandId": null
+    },
+    {
+      "id": "nissan",
+      "slug": "nissan",
+      "name": "Nissan",
+      "aliases": [
+        "NISSAN"
+      ],
+      "nhtsaMakeIds": [
+        478
+      ],
+      "vehicleTypes": [
+        {
+          "id": 2,
+          "name": "Passenger Car"
+        },
+        {
+          "id": 7,
+          "name": "Multipurpose Passenger Vehicle (MPV)"
+        }
+      ],
+      "logoReferenceUrl": "https://raw.githubusercontent.com/filippofilip95/car-logos-dataset/e334a4d2e8742108ba164c629dff5636576d3808/logos/optimized/nissan.png",
+      "logoOriginalSourceUrl": "https://www.carlogos.org/car-logos/nissan-logo-2020-black-show.png",
+      "country": null,
+      "operatingStatus": "unknown",
+      "reviewStatus": "vehicle_registry_match",
+      "isBuildReady": false,
+      "sources": [
+        {
+          "sourceId": "car-logos-dataset",
+          "sourceName": "Nissan",
+          "sourceSlug": "nissan"
+        },
+        {
+          "sourceId": "nhtsa-passenger-car",
+          "makeId": 478,
+          "sourceName": "NISSAN"
+        },
+        {
+          "sourceId": "nhtsa-mpv",
+          "makeId": 478,
+          "sourceName": "NISSAN"
+        }
+      ],
+      "parentBrandId": null
+    },
+    {
+      "id": "omoda",
+      "slug": "omoda",
+      "name": "Omoda",
+      "aliases": [],
+      "nhtsaMakeIds": [],
+      "vehicleTypes": [],
+      "logoReferenceUrl": "https://raw.githubusercontent.com/filippofilip95/car-logos-dataset/e334a4d2e8742108ba164c629dff5636576d3808/logos/optimized/omoda.png",
+      "logoOriginalSourceUrl": "/Users/filip.popranec/Develop/car-logos-dataset/local-logos/omoda.png",
+      "country": null,
+      "operatingStatus": "unknown",
+      "reviewStatus": "source_only",
+      "isBuildReady": false,
+      "sources": [
+        {
+          "sourceId": "car-logos-dataset",
+          "sourceName": "Omoda",
+          "sourceSlug": "omoda"
+        }
+      ],
+      "parentBrandId": null
+    },
+    {
+      "id": "ora",
+      "slug": "ora",
+      "name": "ORA",
+      "aliases": [],
+      "nhtsaMakeIds": [],
+      "vehicleTypes": [],
+      "logoReferenceUrl": null,
+      "logoOriginalSourceUrl": null,
+      "country": null,
+      "operatingStatus": "unknown",
+      "reviewStatus": "official_brand_page",
+      "isBuildReady": false,
+      "sources": [
+        {
+          "sourceId": "official-supplement",
+          "url": "https://www.gwm-global.com/aboutGWM/",
+          "verifiedAt": "2026-10-30"
+        }
+      ],
+      "parentBrandId": "great-wall"
+    },
+    {
+      "id": "porsche",
+      "slug": "porsche",
+      "name": "Porsche",
+      "aliases": [
+        "PORSCHE"
+      ],
+      "nhtsaMakeIds": [
+        584
+      ],
+      "vehicleTypes": [
+        {
+          "id": 2,
+          "name": "Passenger Car"
+        },
+        {
+          "id": 7,
+          "name": "Multipurpose Passenger Vehicle (MPV)"
+        }
+      ],
+      "logoReferenceUrl": "https://raw.githubusercontent.com/filippofilip95/car-logos-dataset/e334a4d2e8742108ba164c629dff5636576d3808/logos/optimized/porsche.png",
+      "logoOriginalSourceUrl": "https://www.carlogos.org/car-logos/porsche-logo-2014-full-640.png",
+      "country": null,
+      "operatingStatus": "unknown",
+      "reviewStatus": "vehicle_registry_match",
+      "isBuildReady": false,
+      "sources": [
+        {
+          "sourceId": "car-logos-dataset",
+          "sourceName": "Porsche",
+          "sourceSlug": "porsche"
+        },
+        {
+          "sourceId": "nhtsa-passenger-car",
+          "makeId": 584,
+          "sourceName": "PORSCHE"
+        },
+        {
+          "sourceId": "nhtsa-mpv",
+          "makeId": 584,
+          "sourceName": "PORSCHE"
+        }
+      ],
+      "parentBrandId": null
+    },
+    {
+      "id": "subaru",
+      "slug": "subaru",
+      "name": "Subaru",
+      "aliases": [
+        "SUBARU"
+      ],
+      "nhtsaMakeIds": [
+        523
+      ],
+      "vehicleTypes": [
+        {
+          "id": 2,
+          "name": "Passenger Car"
+        },
+        {
+          "id": 7,
+          "name": "Multipurpose Passenger Vehicle (MPV)"
+        }
+      ],
+      "logoReferenceUrl": "https://raw.githubusercontent.com/filippofilip95/car-logos-dataset/e334a4d2e8742108ba164c629dff5636576d3808/logos/optimized/subaru.png",
+      "logoOriginalSourceUrl": "https://www.carlogos.org/car-logos/subaru-logo-2019-640.png",
+      "country": null,
+      "operatingStatus": "unknown",
+      "reviewStatus": "vehicle_registry_match",
+      "isBuildReady": false,
+      "sources": [
+        {
+          "sourceId": "car-logos-dataset",
+          "sourceName": "Subaru",
+          "sourceSlug": "subaru"
+        },
+        {
+          "sourceId": "nhtsa-passenger-car",
+          "makeId": 523,
+          "sourceName": "SUBARU"
+        },
+        {
+          "sourceId": "nhtsa-mpv",
+          "makeId": 523,
+          "sourceName": "SUBARU"
+        }
+      ],
+      "parentBrandId": null
+    },
+    {
+      "id": "suzuki",
+      "slug": "suzuki",
+      "name": "Suzuki",
+      "aliases": [
+        "SUZUKI"
+      ],
+      "nhtsaMakeIds": [
+        509
+      ],
+      "vehicleTypes": [
+        {
+          "id": 2,
+          "name": "Passenger Car"
+        },
+        {
+          "id": 7,
+          "name": "Multipurpose Passenger Vehicle (MPV)"
+        }
+      ],
+      "logoReferenceUrl": "https://raw.githubusercontent.com/filippofilip95/car-logos-dataset/e334a4d2e8742108ba164c629dff5636576d3808/logos/optimized/suzuki.png",
+      "logoOriginalSourceUrl": "https://www.carlogos.org/logo/Suzuki-logo-5000x2500.png",
+      "country": null,
+      "operatingStatus": "unknown",
+      "reviewStatus": "vehicle_registry_match",
+      "isBuildReady": false,
+      "sources": [
+        {
+          "sourceId": "car-logos-dataset",
+          "sourceName": "Suzuki",
+          "sourceSlug": "suzuki"
+        },
+        {
+          "sourceId": "nhtsa-passenger-car",
+          "makeId": 509,
+          "sourceName": "SUZUKI"
+        },
+        {
+          "sourceId": "nhtsa-mpv",
+          "makeId": 509,
+          "sourceName": "SUZUKI"
+        }
+      ],
+      "parentBrandId": null
+    },
+    {
+      "id": "toyota",
+      "slug": "toyota",
+      "name": "Toyota",
+      "aliases": [
+        "TOYOTA"
+      ],
+      "nhtsaMakeIds": [
+        448
+      ],
+      "vehicleTypes": [
+        {
+          "id": 2,
+          "name": "Passenger Car"
+        },
+        {
+          "id": 7,
+          "name": "Multipurpose Passenger Vehicle (MPV)"
+        }
+      ],
+      "logoReferenceUrl": "https://raw.githubusercontent.com/filippofilip95/car-logos-dataset/e334a4d2e8742108ba164c629dff5636576d3808/logos/optimized/toyota.png",
+      "logoOriginalSourceUrl": "https://www.carlogos.org/car-logos/toyota-logo-2020-europe-640.png",
+      "country": null,
+      "operatingStatus": "unknown",
+      "reviewStatus": "vehicle_registry_match",
+      "isBuildReady": false,
+      "sources": [
+        {
+          "sourceId": "car-logos-dataset",
+          "sourceName": "Toyota",
+          "sourceSlug": "toyota"
+        },
+        {
+          "sourceId": "nhtsa-passenger-car",
+          "makeId": 448,
+          "sourceName": "TOYOTA"
+        },
+        {
+          "sourceId": "nhtsa-mpv",
+          "makeId": 448,
+          "sourceName": "TOYOTA"
+        }
+      ],
+      "parentBrandId": null
+    },
+    {
+      "id": "xpeng",
+      "slug": "xpeng",
+      "name": "XPeng",
+      "aliases": [],
+      "nhtsaMakeIds": [],
+      "vehicleTypes": [],
+      "logoReferenceUrl": "https://raw.githubusercontent.com/filippofilip95/car-logos-dataset/e334a4d2e8742108ba164c629dff5636576d3808/logos/optimized/xpeng.png",
+      "logoOriginalSourceUrl": "https://www.carlogos.org/car-logos/xpeng-logo-2021-2700x1100-show.png",
+      "country": null,
+      "operatingStatus": "unknown",
+      "reviewStatus": "source_only",
+      "isBuildReady": false,
+      "sources": [
+        {
+          "sourceId": "car-logos-dataset",
+          "sourceName": "XPeng",
+          "sourceSlug": "xpeng"
+        }
+      ],
+      "parentBrandId": null
+    },
+    {
+      "id": "zeekr",
+      "slug": "zeekr",
+      "name": "Zeekr",
+      "aliases": [
+        "ZEEKR"
+      ],
+      "nhtsaMakeIds": [
+        13271
+      ],
+      "vehicleTypes": [
+        {
+          "id": 2,
+          "name": "Passenger Car"
+        }
+      ],
+      "logoReferenceUrl": "https://raw.githubusercontent.com/filippofilip95/car-logos-dataset/e334a4d2e8742108ba164c629dff5636576d3808/logos/optimized/zeekr.png",
+      "logoOriginalSourceUrl": "https://www.carlogos.org/car-logos/zeekr-logo-2300x700-show.png",
+      "country": null,
+      "operatingStatus": "unknown",
+      "reviewStatus": "vehicle_registry_match",
+      "isBuildReady": false,
+      "sources": [
+        {
+          "sourceId": "car-logos-dataset",
+          "sourceName": "Zeekr",
+          "sourceSlug": "zeekr"
+        },
+        {
+          "sourceId": "nhtsa-passenger-car",
+          "makeId": 13271,
+          "sourceName": "ZEEKR"
+        }
+      ],
+      "parentBrandId": null
+    }
+  ]
+}

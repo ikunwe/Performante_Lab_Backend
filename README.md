@@ -1,5 +1,7 @@
 # Performante Lab API
 
+Catalog API: `GET /api/catalog/brands?scope=starter` อ่านแบรนด์จาก `car_brand_reference` ใน Supabase และ cache ฝั่ง server 1 ชั่วโมง ใช้ `scope=all` สำหรับข้อมูลอ้างอิงทั้งหมด ต้อง restart Backend หลังเพิ่ม route นี้ Frontend มี memory/localStorage cache แยกตามโปรเจกต์และ scope รายละเอียดอยู่ที่ Frontend `docs/brand-cache.md`
+
 Express API สำหรับตรวจ Supabase access token แยกจาก OAuth หน้าบ้าน โค้ดไม่รับ/จัดเก็บ Google Client Secret
 
 1. กรอก `SUPABASE_URL` และ `SUPABASE_PUBLISHABLE_KEY` ใน `.env` จาก Supabase โปรเจกต์เดียวกับ Frontend
