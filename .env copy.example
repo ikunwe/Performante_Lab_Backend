@@ -1,0 +1,6 @@
+PORT=3000
+FRONTEND_ORIGINS=http://localhost:4200,http://localhost:4201,http://127.0.0.1:4200,http://127.0.0.1:4201
+SUPABASE_URL=
+SUPABASE_PUBLISHABLE_KEY=
+# Backend only. Required for private username -> account lookup, not Google Login.
+SUPABASE_SECRET_KEY=

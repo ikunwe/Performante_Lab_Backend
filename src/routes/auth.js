@@ -1,5 +1,6 @@
 const { Router } = require("express");
 const { requireAuth } = require("../middleware/require-auth");
+const { resolveUserProfile } = require("../middleware/require-role");
 const { rateLimit } = require("express-rate-limit");
 
 function authRoutes(supabase, { admin, createAuthClient } = {}) {
@@ -70,14 +71,19 @@ function authRoutes(supabase, { admin, createAuthClient } = {}) {
       }
     },
   );
-  router.get("/me", requireAuth(supabase), (req, res) => {
+  router.get("/me", requireAuth(supabase), async (req, res) => {
+    res.set("Cache-Control", "no-store");
     const user = req.authUser;
+    const client = admin || supabase;
+    const profile = await resolveUserProfile(req, client);
     res.json({
       user: {
         id: user.id,
         email: user.email || null,
         name: user.user_metadata?.full_name || user.email || "Account",
         avatarUrl: user.user_metadata?.avatar_url || null,
+        role: profile.role || "User",
+        status: profile.status || "Active",
       },
     });
   });
