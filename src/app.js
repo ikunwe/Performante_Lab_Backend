@@ -3,7 +3,13 @@ const cors = require("cors");
 const { authRoutes } = require("./routes/auth");
 const { catalogRoutes } = require("./routes/catalog");
 
-function createApp({ supabase, admin, createAuthClient, origins = [] }) {
+function createApp({
+  supabase,
+  admin,
+  createAuthClient,
+  origins = [],
+  routes,
+}) {
   const app = express();
   app.disable("x-powered-by");
   app.use(express.json({ limit: "4kb" }));
@@ -20,6 +26,15 @@ function createApp({ supabase, admin, createAuthClient, origins = [] }) {
   );
   app.use("/api/auth", authRoutes(supabase, { admin, createAuthClient }));
   app.use("/api/catalog", catalogRoutes(admin));
+  if (typeof routes === "function") {
+    routes(app, { supabase, admin });
+  } else if (Array.isArray(routes)) {
+    for (const r of routes) {
+      if (r && r.path && r.handler) {
+        app.use(r.path, r.handler);
+      }
+    }
+  }
   app.use((_req, res) => res.status(404).json({ error: "NOT_FOUND" }));
   app.use((error, _req, res, _next) => {
     const invalidBody =

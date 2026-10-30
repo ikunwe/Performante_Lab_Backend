@@ -64,6 +64,8 @@ test("validates token and returns a limited user profile", async (t) => {
       email: "driver@example.com",
       name: "Driver",
       avatarUrl: null,
+      role: 'User',
+      status: 'Active',
     },
   });
 });
