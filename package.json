@@ -4,9 +4,16 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "data:brands": "node scripts/collect-car-brands.js",
+    "data:brands:offline": "node scripts/collect-car-brands.js --offline",
     "test": "node --test",
     "start": "node index.js",
-    "dev": "node index.js"
+    "dev": "node index.js",
+    "data:brands:plan": "node scripts/sync-brand-catalog.js",
+    "data:brands:sync": "node scripts/sync-brand-catalog.js --apply",
+    "data:models": "node scripts/collect-car-models.js",
+    "data:models:offline": "node scripts/collect-car-models.js --offline",
+    "data:models:sync": "node scripts/sync-car-models.js --apply"
   },
   "keywords": [],
   "author": "",

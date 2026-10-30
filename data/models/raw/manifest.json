@@ -1,0 +1,140 @@
+[
+  {
+    "brandId": "aion",
+    "url": "https://raw.githubusercontent.com/gor3a/vehicle-makes-models/ee99776470a45214bf524cdfe22e5dbf4bd67f93/data/json/gac.json",
+    "sha256": "b976e015c81b134b64bb22f90bd50f0fc057d59bfe5576cef1fe07eb66f148ce",
+    "snapshot": "raw/gac.json.gz"
+  },
+  {
+    "brandId": "bmw",
+    "url": "https://raw.githubusercontent.com/gor3a/vehicle-makes-models/ee99776470a45214bf524cdfe22e5dbf4bd67f93/data/json/bmw.json",
+    "sha256": "fea25f4c438f2cfba64a0c421e83390b9c2b82ceaa2a8e8c4b6588a64ee099a3",
+    "snapshot": "raw/bmw.json.gz"
+  },
+  {
+    "brandId": "byd",
+    "url": "https://raw.githubusercontent.com/gor3a/vehicle-makes-models/ee99776470a45214bf524cdfe22e5dbf4bd67f93/data/json/byd.json",
+    "sha256": "0e2f8584589565e94bf0820fcd35ecba2e6f3a0a52842b5a5458145925ee6d89",
+    "snapshot": "raw/byd.json.gz"
+  },
+  {
+    "brandId": "changan",
+    "url": "https://raw.githubusercontent.com/gor3a/vehicle-makes-models/ee99776470a45214bf524cdfe22e5dbf4bd67f93/data/json/changan.json",
+    "sha256": "0c79cb36fbec69ac5982a5eb1dfd80ac501e5c3db1d6fc40f7a7246664c98a27",
+    "snapshot": "raw/changan.json.gz"
+  },
+  {
+    "brandId": "ferrari",
+    "url": "https://raw.githubusercontent.com/gor3a/vehicle-makes-models/ee99776470a45214bf524cdfe22e5dbf4bd67f93/data/json/ferrari.json",
+    "sha256": "4e679a45a7d0eacc01a5609713f4eb5e32c4f82a0eba86bcaed43f99b7cf7ffc",
+    "snapshot": "raw/ferrari.json.gz"
+  },
+  {
+    "brandId": "ford",
+    "url": "https://raw.githubusercontent.com/gor3a/vehicle-makes-models/ee99776470a45214bf524cdfe22e5dbf4bd67f93/data/json/ford.json",
+    "sha256": "a0ddaa58de5e1aa7276ac933c64ceb5f34359ddba7ac6badc406f4665fc9f346",
+    "snapshot": "raw/ford.json.gz"
+  },
+  {
+    "brandId": "haval",
+    "url": "https://raw.githubusercontent.com/gor3a/vehicle-makes-models/ee99776470a45214bf524cdfe22e5dbf4bd67f93/data/json/haval.json",
+    "sha256": "f3ec63aaf2f8f8888f0f0135e9ae653b0fde2c59e223800f8d9e531730735413",
+    "snapshot": "raw/haval.json.gz"
+  },
+  {
+    "brandId": "honda",
+    "url": "https://raw.githubusercontent.com/gor3a/vehicle-makes-models/ee99776470a45214bf524cdfe22e5dbf4bd67f93/data/json/honda.json",
+    "sha256": "feb3c6f7a9fd1a437f90a332603dd704dab27e72e4692572e71392b6f4201db5",
+    "snapshot": "raw/honda.json.gz"
+  },
+  {
+    "brandId": "isuzu",
+    "url": "https://raw.githubusercontent.com/gor3a/vehicle-makes-models/ee99776470a45214bf524cdfe22e5dbf4bd67f93/data/json/isuzu.json",
+    "sha256": "bd05d93f41ae3567ce472cc291dfc661f1451d30000efb6f4dbdd830ac2bb9fc",
+    "snapshot": "raw/isuzu.json.gz"
+  },
+  {
+    "brandId": "lamborghini",
+    "url": "https://raw.githubusercontent.com/gor3a/vehicle-makes-models/ee99776470a45214bf524cdfe22e5dbf4bd67f93/data/json/lamborghini.json",
+    "sha256": "26f739e7ad4131d0aa78ab413a39f929f7643a165b061e6c4ed608bd20e929ec",
+    "snapshot": "raw/lamborghini.json.gz"
+  },
+  {
+    "brandId": "mazda",
+    "url": "https://raw.githubusercontent.com/gor3a/vehicle-makes-models/ee99776470a45214bf524cdfe22e5dbf4bd67f93/data/json/mazda.json",
+    "sha256": "a838a8da02c033fc71b314ea8d60749dbd76f3261bedf60d00186e76a666581e",
+    "snapshot": "raw/mazda.json.gz"
+  },
+  {
+    "brandId": "mercedes-benz",
+    "url": "https://raw.githubusercontent.com/gor3a/vehicle-makes-models/ee99776470a45214bf524cdfe22e5dbf4bd67f93/data/json/mercedes-benz.json",
+    "sha256": "59b2658429cd2030637ff9e5e170f5efa5a1a72dd08a9b16efe1f51f22178d52",
+    "snapshot": "raw/mercedes-benz.json.gz"
+  },
+  {
+    "brandId": "mg",
+    "url": "https://raw.githubusercontent.com/gor3a/vehicle-makes-models/ee99776470a45214bf524cdfe22e5dbf4bd67f93/data/json/mg.json",
+    "sha256": "2a8267befbfbaa462bcb55eaddcc4f7f8bd87b1ff6eb2cc802da35644316a918",
+    "snapshot": "raw/mg.json.gz"
+  },
+  {
+    "brandId": "mitsubishi",
+    "url": "https://raw.githubusercontent.com/gor3a/vehicle-makes-models/ee99776470a45214bf524cdfe22e5dbf4bd67f93/data/json/mitsubishi.json",
+    "sha256": "2f319168087bf55943c523677ac0ea268e85105d887f1d37eb673b005539ecb4",
+    "snapshot": "raw/mitsubishi.json.gz"
+  },
+  {
+    "brandId": "nissan",
+    "url": "https://raw.githubusercontent.com/gor3a/vehicle-makes-models/ee99776470a45214bf524cdfe22e5dbf4bd67f93/data/json/nissan.json",
+    "sha256": "58dd1d898a9da93fcb241dedc67dde2c3fb2c95dcdbb495cdf049f7371591bf8",
+    "snapshot": "raw/nissan.json.gz"
+  },
+  {
+    "brandId": "omoda",
+    "url": "https://raw.githubusercontent.com/gor3a/vehicle-makes-models/ee99776470a45214bf524cdfe22e5dbf4bd67f93/data/json/omoda.json",
+    "sha256": "cdcbf2fd12046b418648993a15831d801fc66732b89f2929382706750dd3e2a5",
+    "snapshot": "raw/omoda.json.gz"
+  },
+  {
+    "brandId": "ora",
+    "url": "https://raw.githubusercontent.com/gor3a/vehicle-makes-models/ee99776470a45214bf524cdfe22e5dbf4bd67f93/data/json/ora.json",
+    "sha256": "a2a3f4778e0394a295cb8eeb818ddc70c7eda27bf6830bbf27f7bb4f659fd022",
+    "snapshot": "raw/ora.json.gz"
+  },
+  {
+    "brandId": "porsche",
+    "url": "https://raw.githubusercontent.com/gor3a/vehicle-makes-models/ee99776470a45214bf524cdfe22e5dbf4bd67f93/data/json/porsche.json",
+    "sha256": "752542cccfa998eeb10693460b7c0f0fdcc93303c9bebfa5714e8e5740d54385",
+    "snapshot": "raw/porsche.json.gz"
+  },
+  {
+    "brandId": "subaru",
+    "url": "https://raw.githubusercontent.com/gor3a/vehicle-makes-models/ee99776470a45214bf524cdfe22e5dbf4bd67f93/data/json/subaru.json",
+    "sha256": "602cde6bb6934fbf7a74307a8c1a39763f528408ae681febc47fca74cad862e2",
+    "snapshot": "raw/subaru.json.gz"
+  },
+  {
+    "brandId": "suzuki",
+    "url": "https://raw.githubusercontent.com/gor3a/vehicle-makes-models/ee99776470a45214bf524cdfe22e5dbf4bd67f93/data/json/suzuki.json",
+    "sha256": "d580d63ca817248cd2a3984e0efb5d9d249501cb3d5cc9f0351ab738f08a4734",
+    "snapshot": "raw/suzuki.json.gz"
+  },
+  {
+    "brandId": "toyota",
+    "url": "https://raw.githubusercontent.com/gor3a/vehicle-makes-models/ee99776470a45214bf524cdfe22e5dbf4bd67f93/data/json/toyota.json",
+    "sha256": "80da9fda963ce14cc2802a73ee9171399bd62ec8ec154c65502aaf8a0e36bc53",
+    "snapshot": "raw/toyota.json.gz"
+  },
+  {
+    "brandId": "xpeng",
+    "url": "https://raw.githubusercontent.com/gor3a/vehicle-makes-models/ee99776470a45214bf524cdfe22e5dbf4bd67f93/data/json/xpeng.json",
+    "sha256": "977c1f31e181d4a8cee90000a9ed019885ebcf5b2f58ce81e4558f6bb1b89c92",
+    "snapshot": "raw/xpeng.json.gz"
+  },
+  {
+    "brandId": "zeekr",
+    "url": "https://raw.githubusercontent.com/gor3a/vehicle-makes-models/ee99776470a45214bf524cdfe22e5dbf4bd67f93/data/json/zeekr.json",
+    "sha256": "d5894200e2b740d7aeb3efb2cadce7d3021be39604e1dc9934cabcfc60c7ef36",
+    "snapshot": "raw/zeekr.json.gz"
+  }
+]

@@ -1,6 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const { authRoutes } = require("./routes/auth");
+const { catalogRoutes } = require("./routes/catalog");
 
 function createApp({ supabase, admin, createAuthClient, origins = [] }) {
   const app = express();
@@ -18,6 +19,7 @@ function createApp({ supabase, admin, createAuthClient, origins = [] }) {
     res.json({ status: "ok", authConfigured: !!supabase }),
   );
   app.use("/api/auth", authRoutes(supabase, { admin, createAuthClient }));
+  app.use("/api/catalog", catalogRoutes(admin));
   app.use((_req, res) => res.status(404).json({ error: "NOT_FOUND" }));
   app.use((error, _req, res, _next) => {
     const invalidBody =
