@@ -2,6 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const { authRoutes } = require("./routes/auth");
 const { catalogRoutes } = require("./routes/catalog");
+const { buildsRoutes } = require('./routes/builds');
 const { adminRoutes } = require("./routes/admin");
 const { requireAuth } = require("./middleware/require-auth");
 const {
@@ -23,7 +24,7 @@ function createApp({
     cors({
       origin: (origin, callback) =>
         callback(null, !origin || origins.includes(origin)),
-      methods: ["GET", "POST", "PATCH", "OPTIONS"],
+      methods: ["GET", "POST", "PUT", "PATCH", "DELETE",  "OPTIONS"],
       allowedHeaders: ["Authorization", "Content-Type"],
     }),
   );
@@ -32,6 +33,7 @@ function createApp({
   );
   app.use("/api/auth", authRoutes(supabase, { admin, createAuthClient }));
   app.use("/api/catalog", catalogRoutes(admin));
+  app.use('/api/builds', buildsRoutes(supabase, { admin }));
   // Guard extension routes before mounting them; catalog remains public.
   app.use(
     "/api/admin",

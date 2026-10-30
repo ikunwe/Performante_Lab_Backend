@@ -1,0 +1,349 @@
+{
+  "schemaVersion": 1,
+  "cars": [
+    {
+      "brandId": "bmw",
+      "model": "1series",
+      "year": null,
+      "url": "assets/List_Car/BMW/1%20series.png?v=3eb57f925543"
+    },
+    {
+      "brandId": "bmw",
+      "model": "m3cs",
+      "year": null,
+      "url": "assets/List_Car/BMW/M3%20CS.png?v=80d8d6b6df1a"
+    },
+    {
+      "brandId": "bmw",
+      "model": "m4",
+      "year": null,
+      "url": "assets/List_Car/BMW/M4.png?v=6e25e9a45f8b"
+    },
+    {
+      "brandId": "bmw",
+      "model": "m4cs",
+      "year": null,
+      "url": "assets/List_Car/BMW/M4%20CS.png?v=017e537828f3"
+    },
+    {
+      "brandId": "ferrari",
+      "model": "f8",
+      "year": null,
+      "url": "assets/List_Car/Ferrari/F8.png?v=84dabcdfe1f4"
+    },
+    {
+      "brandId": "ferrari",
+      "model": "488gtb",
+      "year": null,
+      "url": "assets/List_Car/Ferrari/Ferrari%20488%20GTB.png?v=dee7b25770b3"
+    },
+    {
+      "brandId": "ferrari",
+      "model": "488pista",
+      "year": null,
+      "url": "assets/List_Car/Ferrari/Ferrari%20488%20pista.png?v=197a8f422101"
+    },
+    {
+      "brandId": "haval",
+      "model": "dargo",
+      "year": null,
+      "url": "assets/List_Car/Haval/Dargon.png?v=4a3486343953"
+    },
+    {
+      "brandId": "haval",
+      "model": "f7",
+      "year": null,
+      "url": "assets/List_Car/Haval/F7.png?v=8bdfddcf3174"
+    },
+    {
+      "brandId": "haval",
+      "model": "f7x",
+      "year": null,
+      "url": "assets/List_Car/Haval/F7x.png?v=3c096ac80e14"
+    },
+    {
+      "brandId": "haval",
+      "model": "h2",
+      "year": null,
+      "url": "assets/List_Car/Haval/H2.png?v=98bfa04055f1"
+    },
+    {
+      "brandId": "haval",
+      "model": "h6",
+      "year": null,
+      "url": "assets/List_Car/Haval/H6.png?v=113c00a35472"
+    },
+    {
+      "brandId": "haval",
+      "model": "h9",
+      "year": null,
+      "url": "assets/List_Car/Haval/H9.png?v=9ce7fd3056e4"
+    },
+    {
+      "brandId": "haval",
+      "model": "jolion",
+      "year": null,
+      "url": "assets/List_Car/Haval/jolion.png?v=951e93ce5870"
+    },
+    {
+      "brandId": "honda",
+      "model": "accord",
+      "year": null,
+      "url": "assets/List_Car/Honda/accord.png?v=4b89759aa5a1"
+    },
+    {
+      "brandId": "honda",
+      "model": "accordcrosstour",
+      "year": null,
+      "url": "assets/List_Car/Honda/Accord%20Crosstour.png?v=2d82d5b46bef"
+    },
+    {
+      "brandId": "honda",
+      "model": "civic",
+      "year": null,
+      "url": "assets/List_Car/Honda/civic.png?v=f5e5d28f0fdd"
+    },
+    {
+      "brandId": "honda",
+      "model": "civictyper",
+      "year": null,
+      "url": "assets/List_Car/Honda/civic%20type%20r.png?v=687e67469a5c"
+    },
+    {
+      "brandId": "lamborghini",
+      "model": "aventador",
+      "year": null,
+      "url": "assets/List_Car/Lamborghini/aventador.png?v=dcc207178652"
+    },
+    {
+      "brandId": "lamborghini",
+      "model": "centenario",
+      "year": null,
+      "url": "assets/List_Car/Lamborghini/centenario.png?v=95ecdf73d4d0"
+    },
+    {
+      "brandId": "lamborghini",
+      "model": "huracan",
+      "year": null,
+      "url": "assets/List_Car/Lamborghini/huracan.png?v=e8262954e71d"
+    },
+    {
+      "brandId": "lamborghini",
+      "model": "revuelto",
+      "year": null,
+      "url": "assets/List_Car/Lamborghini/revuelto.png?v=06a5516fb6e4"
+    },
+    {
+      "brandId": "toyota",
+      "model": "4runner",
+      "year": null,
+      "url": "assets/List_Car/Toyota/4runner.png?v=70cd0c76a209"
+    },
+    {
+      "brandId": "toyota",
+      "model": "agya",
+      "year": null,
+      "url": "assets/List_Car/Toyota/Agya.png?v=5e894cf0afdd"
+    },
+    {
+      "brandId": "toyota",
+      "model": "alphard",
+      "year": null,
+      "url": "assets/List_Car/Toyota/alphard.png?v=c30d126124ed"
+    },
+    {
+      "brandId": "toyota",
+      "model": "camry",
+      "year": null,
+      "url": "assets/List_Car/Toyota/camry.png?v=45ab89d25a02"
+    }
+  ],
+  "parts": [
+    {
+      "id": "local-part:b64f07826fcec59e4603",
+      "brandId": "honda",
+      "model": "civic",
+      "category": "front",
+      "name": "Front Bumper 1",
+      "url": "assets/List_Part/Honda/Civic/Front%20Bumper_1.png?v=f8afb9080e9f"
+    },
+    {
+      "id": "local-part:6a5ae16b4c98d01f2bef",
+      "brandId": "honda",
+      "model": "civic",
+      "category": "front",
+      "name": "Front Bumper 2",
+      "url": "assets/List_Part/Honda/Civic/Front%20Bumper_2.png?v=b782cddb90ba"
+    },
+    {
+      "id": "local-part:c2fb4acdc79090b64dc2",
+      "brandId": "honda",
+      "model": "civic",
+      "category": "rear",
+      "name": "Rear Bumper 1",
+      "url": "assets/List_Part/Honda/Civic/Rear%20Bumper_1.png?v=f088ea01f76d"
+    },
+    {
+      "id": "local-part:b28a567d325197ed55c3",
+      "brandId": "honda",
+      "model": "civic",
+      "category": "rear",
+      "name": "Rear Bumper 2",
+      "url": "assets/List_Part/Honda/Civic/Rear%20Bumper_2.png?v=5ad34849d214"
+    },
+    {
+      "id": "local-part:3ef978fc4e067a900c95",
+      "brandId": "honda",
+      "model": "civic",
+      "category": "spoilers",
+      "name": "Spoilers 1",
+      "url": "assets/List_Part/Honda/Civic/Spoilers_1.png?v=8b94d78c3ff5"
+    },
+    {
+      "id": "local-part:8779f787631c907a0f9e",
+      "brandId": "honda",
+      "model": "civic",
+      "category": "wheels",
+      "name": "Wheel 1",
+      "url": "assets/List_Part/Honda/Civic/Wheel_1.png?v=7641220432da"
+    }
+  ],
+  "views": [
+    {
+      "brandId": "honda",
+      "model": "civic",
+      "variant": "default",
+      "view": "rear45",
+      "url": "assets/ListCar_view/Honda/civic/default/45_Back.png?v=99d9c46de7d8"
+    },
+    {
+      "brandId": "honda",
+      "model": "civic",
+      "variant": "default",
+      "view": "front45",
+      "url": "assets/ListCar_view/Honda/civic/default/45_front.png?v=f5e5d28f0fdd"
+    },
+    {
+      "brandId": "honda",
+      "model": "civic",
+      "variant": "default",
+      "view": "rear",
+      "url": "assets/ListCar_view/Honda/civic/default/Back.png?v=0ec326f3c29b"
+    },
+    {
+      "brandId": "honda",
+      "model": "civic",
+      "variant": "default",
+      "view": "front",
+      "url": "assets/ListCar_view/Honda/civic/default/front.png?v=eb2d79f63924"
+    },
+    {
+      "brandId": "honda",
+      "model": "civic",
+      "variant": "default",
+      "spoilerVariant": "spoiler1",
+      "view": "rear45",
+      "url": "assets/ListCar_view/Honda/civic/default/Spoilers%201/45_Back.png?v=8b94d78c3ff5"
+    },
+    {
+      "brandId": "honda",
+      "model": "civic",
+      "variant": "default",
+      "spoilerVariant": "spoiler1",
+      "view": "front45",
+      "url": "assets/ListCar_view/Honda/civic/default/Spoilers%201/45_front.png?v=38bdb97207ba"
+    },
+    {
+      "brandId": "honda",
+      "model": "civic",
+      "variant": "default",
+      "spoilerVariant": "spoiler1",
+      "view": "rear",
+      "url": "assets/ListCar_view/Honda/civic/default/Spoilers%201/Back.png?v=c487b11ce96b"
+    },
+    {
+      "brandId": "honda",
+      "model": "civic",
+      "variant": "default",
+      "wheelVariant": "wheel1",
+      "view": "rear45",
+      "url": "assets/ListCar_view/Honda/civic/default/Wheel%201/45_Back.png?v=1325c1eb1b9a"
+    },
+    {
+      "brandId": "honda",
+      "model": "civic",
+      "variant": "default",
+      "wheelVariant": "wheel1",
+      "view": "front45",
+      "url": "assets/ListCar_view/Honda/civic/default/Wheel%201/45_front.png?v=7641220432da"
+    },
+    {
+      "brandId": "honda",
+      "model": "civic",
+      "variant": "frontbumper1",
+      "view": "front45",
+      "url": "assets/ListCar_view/Honda/civic/Front%20Bumper%201/45_front.png?v=f8afb9080e9f"
+    },
+    {
+      "brandId": "honda",
+      "model": "civic",
+      "variant": "frontbumper1",
+      "view": "front",
+      "url": "assets/ListCar_view/Honda/civic/Front%20Bumper%201/front.png?v=5dc015284bcf"
+    },
+    {
+      "brandId": "honda",
+      "model": "civic",
+      "variant": "frontbumper1",
+      "spoilerVariant": "spoiler1",
+      "view": "front45",
+      "url": "assets/ListCar_view/Honda/civic/Front%20Bumper%201/Spoilers%201/45_front.png?v=2e18fc4ab20d"
+    },
+    {
+      "brandId": "honda",
+      "model": "civic",
+      "variant": "frontbumper1",
+      "wheelVariant": "wheel1",
+      "view": "front45",
+      "url": "assets/ListCar_view/Honda/civic/Front%20Bumper%201/Wheel%201/45_front.png?v=8b8f9fc03dbb"
+    },
+    {
+      "brandId": "honda",
+      "model": "civic",
+      "variant": "rearbumper1",
+      "view": "rear45",
+      "url": "assets/ListCar_view/Honda/civic/Rear%20Bumper%201/45_Back.png?v=f088ea01f76d"
+    },
+    {
+      "brandId": "honda",
+      "model": "civic",
+      "variant": "rearbumper1",
+      "view": "rear",
+      "url": "assets/ListCar_view/Honda/civic/Rear%20Bumper%201/Back.png?v=8d212655526a"
+    },
+    {
+      "brandId": "honda",
+      "model": "civic",
+      "variant": "rearbumper1",
+      "spoilerVariant": "spoiler1",
+      "view": "rear45",
+      "url": "assets/ListCar_view/Honda/civic/Rear%20Bumper%201/Spoilers%201/45_Back.png?v=4e94667cc589"
+    },
+    {
+      "brandId": "honda",
+      "model": "civic",
+      "variant": "rearbumper1",
+      "spoilerVariant": "spoiler1",
+      "view": "rear",
+      "url": "assets/ListCar_view/Honda/civic/Rear%20Bumper%201/Spoilers%201/Back.png?v=fd11036b30b9"
+    },
+    {
+      "brandId": "honda",
+      "model": "civic",
+      "variant": "rearbumper1",
+      "wheelVariant": "wheel1",
+      "view": "rear45",
+      "url": "assets/ListCar_view/Honda/civic/Rear%20Bumper%201/Wheel%201/45_Back.png?v=a2d11689552d"
+    }
+  ]
+}
