@@ -1,0 +1,10 @@
+[
+  { "brandId": "great-wall", "sourceUrl": "https://www.gwm.co.th/th/models", "models": [{ "name": "POER SAHAR" }] },
+  { "brandId": "neta", "sourceUrl": "https://www.neta.co.th/", "models": [{ "name": "V" }, { "name": "V-II", "sourceUrl": "https://www.neta.co.th/en/product/NetaV-II" }, { "name": "X", "sourceUrl": "https://www.neta.co.th/uploads/downloads/NETA-X_Brochure_v2.pdf" }] },
+  { "brandId": "deepal", "sourceUrl": "https://www.changan.co.th/th/deepal/s07-th/", "models": [{ "name": "S07" }, { "name": "L07", "sourceUrl": "https://api.www.changan.co.th/uploads/brochure_L07_aef20c5984.pdf" }, { "name": "S05", "sourceUrl": "https://api.www.changan.co.th/uploads/Deepal_S05_Eng_version_Update_12_Mar2026_compressed_9e64d75d74.pdf" }] },
+  { "brandId": "jaecoo", "sourceUrl": "https://www.omodajaecoo.co.th/th/e-quotation", "models": [{ "name": "5 EV" }, { "name": "6 EV" }, { "name": "6T EV" }, { "name": "6T REEV" }, { "name": "7 SHS" }] },
+  { "brandId": "denza", "sourceUrl": "https://www.denza.com/en-th", "models": [{ "name": "D9" }, { "name": "Z9GT" }] },
+  { "brandId": "aion", "sourceUrl": "https://www.aionauto.com/th-th/news/article/44930", "models": [{ "name": "Y Plus" }, { "name": "UT", "sourceUrl": "https://resource-www-sg.aionauto.com/static/TH/tenant/cms/common/202508/AION_UT_Brochure_20250829.pdf" }] },
+  { "brandId": "omoda", "sourceUrl": "https://www.omodajaecoo.co.th/th/e-quotation", "models": [{ "name": "C5 EV" }] },
+  { "brandId": "changan", "sourceUrl": "https://www.changan.co.th/en/news/buy-deepal-get-deepal-campaign-winners-announced-en/", "models": [{ "name": "LUMIN" }] }
+]

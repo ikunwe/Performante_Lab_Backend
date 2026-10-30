@@ -29,24 +29,41 @@ test("rejects missing/malformed tokens without contacting Supabase", async (t) =
 });
 
 test("validates token and returns a limited user profile", async (t) => {
-  const base = await serve(t, {
-    auth: {
-      getUser: async (token) => {
-        assert.equal(token, "valid-token");
-        return {
-          data: {
-            user: {
-              id: "1",
-              email: "driver@example.com",
-              user_metadata: { full_name: "Driver" },
-              private_value: "never-expose",
+  const base = await serve(
+    t,
+    {
+      auth: {
+        getUser: async (token) => {
+          assert.equal(token, "valid-token");
+          return {
+            data: {
+              user: {
+                id: "1",
+                email: "driver@example.com",
+                user_metadata: { full_name: "Driver" },
+                private_value: "never-expose",
+              },
             },
-          },
-          error: null,
-        };
+            error: null,
+          };
+        },
       },
     },
-  });
+    {
+      admin: {
+        from: () => ({
+          select: () => ({
+            eq: () => ({
+              maybeSingle: async () => ({
+                data: { role: "User", status: "Active" },
+                error: null,
+              }),
+            }),
+          }),
+        }),
+      },
+    },
+  );
   const res = await fetch(base + "/api/auth/me", {
     headers: {
       authorization: "Bearer valid-token",
@@ -64,8 +81,8 @@ test("validates token and returns a limited user profile", async (t) => {
       email: "driver@example.com",
       name: "Driver",
       avatarUrl: null,
-      role: 'User',
-      status: 'Active',
+      role: "User",
+      status: "Active",
     },
   });
 });
@@ -138,6 +155,10 @@ test("username login reports missing config and does not echo malformed request 
 test("username login resolves privately and returns only session credentials", async (t) => {
   const admin = {
     rpc: async (name, args) => {
+      if (name === "get_user_role_and_status") {
+        assert.equal(args.target_user_id, "user-1");
+        return { data: { role: "User", status: "Active" }, error: null };
+      }
       assert.equal(name, "find_username_account");
       assert.equal(args.input_username, "สมชาย Jaidee");
       return { data: "user-1", error: null };
@@ -208,6 +229,64 @@ test("username login does not expose account existence and rate limits attempts"
     assert.equal(res.status, index < 10 ? 401 : 429);
     if (index < 10)
       assert.equal((await res.json()).error, "INVALID_CREDENTIALS");
+  }
+});
+
+test("username login never returns session credentials for suspended users or failed status checks", async (t) => {
+  for (const mode of ["inactive", "unavailable", "missing"]) {
+    const base = await serve(t, null, {
+      admin: {
+        rpc: async (name) =>
+          name === "find_username_account"
+            ? { data: "user-1", error: null }
+            : mode === "unavailable"
+              ? { data: null, error: { message: "private-profile-error" } }
+              : {
+                  data:
+                    mode === "missing"
+                      ? null
+                      : { role: "User", status: "InActive" },
+                  error: null,
+                },
+        auth: {
+          admin: {
+            getUserById: async () => ({
+              data: { user: { email: "driver@example.com" } },
+              error: null,
+            }),
+          },
+        },
+      },
+      createAuthClient: () => ({
+        auth: {
+          signInWithPassword: async () => ({
+            data: {
+              session: {
+                access_token: "private-access-token",
+                refresh_token: "private-refresh-token",
+              },
+            },
+            error: null,
+          }),
+        },
+      }),
+    });
+    const res = await fetch(base + "/api/auth/login", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ username: "driver", password: "password-123" }),
+    });
+    // A successfully confirmed new account can still complete its first login.
+    assert.equal(
+      res.status,
+      mode === "missing" ? 200 : mode === "inactive" ? 403 : 503,
+    );
+    const body = await res.json();
+    if (mode !== "missing") {
+      assert.equal(body.access_token, undefined);
+      assert.equal(body.refresh_token, undefined);
+      assert.ok(!JSON.stringify(body).includes("private-profile-error"));
+    }
   }
 });
 

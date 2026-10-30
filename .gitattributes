@@ -1,0 +1,3 @@
+# Preserve exact bytes of downloaded snapshots (their checksums include newlines).
+/data/reference/raw/* -text
+/data/models/raw/*.gz -text

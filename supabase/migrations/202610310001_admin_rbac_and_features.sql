@@ -7,10 +7,8 @@ alter table public.profiles
   add column if not exists role text not null default 'User' check (role in ('User', 'Admin', 'SuperAdmin')),
   add column if not exists status text not null default 'Active' check (status in ('Active', 'InActive'));
 
--- Ensure all existing profiles are set to role 'User' and status 'Active'
-update public.profiles
-  set role = 'User',
-      status = 'Active';
+-- ADD COLUMN defaults initialize old rows on first installation.
+-- Preserve existing roles and suspended accounts when this script is rerun.
 
 -- Helper to check if a user is Admin or SuperAdmin without triggering RLS recursion
 create or replace function public.is_admin_or_superadmin(check_user_id uuid)

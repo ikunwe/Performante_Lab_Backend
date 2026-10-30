@@ -76,12 +76,16 @@ function createMockSupabase({
   return client;
 }
 
-async function serveApp(t, { supabase, admin } = {}) {
+async function serveApp(t, { supabase, admin = supabase } = {}) {
   const app = createApp({
     supabase,
     admin,
     origins: ["http://localhost:4200"],
     routes: (serverApp) => {
+      serverApp.get("/api/admin/probe", (_req, res) => res.json({ ok: true }));
+      serverApp.get("/api/super-admin/probe", (_req, res) =>
+        res.json({ ok: true }),
+      );
       serverApp.get(
         "/api/test/active-only",
         requireAuth(supabase),
@@ -319,4 +323,109 @@ test("RBAC middlewares and /api/auth/me work with RPC lookup helper", async (t) 
   const json = await res.json();
   assert.equal(json.user.role, "Admin");
   assert.equal(json.user.status, "Active");
+});
+
+test("profile lookup failures, malformed states and missing private client fail closed", async (t) => {
+  for (const failure of [
+    "query-error",
+    "throw",
+    "invalid-role",
+    "invalid-status",
+    "missing-admin",
+  ]) {
+    const supabase = createMockSupabase({
+      role: "SuperAdmin",
+      status: "Active",
+    });
+    const admin =
+      failure === "missing-admin"
+        ? null
+        : {
+            from: () => ({
+              select: () => ({
+                eq: () => ({
+                  maybeSingle: async () => {
+                    if (failure === "throw")
+                      throw new Error("private-database-detail");
+                    if (failure === "query-error")
+                      return {
+                        data: null,
+                        error: { message: "private-database-detail" },
+                      };
+                    return {
+                      data: {
+                        role: failure === "invalid-role" ? "root" : "Admin",
+                        status:
+                          failure === "invalid-status" ? "unknown" : "Active",
+                      },
+                      error: null,
+                    };
+                  },
+                }),
+              }),
+            }),
+            // A failed authoritative read must not silently fall back to another lookup.
+            rpc: async () =>
+              assert.fail("must not bypass the failed profile query"),
+          };
+    const base = await serveApp(t, { supabase, admin });
+    for (const path of [
+      "/api/auth/me",
+      "/api/admin/probe",
+      "/api/super-admin/probe",
+    ]) {
+      const res = await fetch(base + path, {
+        headers: { authorization: "Bearer valid-token" },
+      });
+      assert.equal(res.status, 503, failure + path);
+      assert.equal(res.headers.get("cache-control"), "no-store");
+      const body = await res.json();
+      assert.equal(body.error, "PROFILE_UNAVAILABLE");
+      assert.ok(!JSON.stringify(body).includes("private-database-detail"));
+    }
+  }
+});
+
+test("production admin prefixes enforce roles and suspension before extension handlers", async (t) => {
+  for (const [role, status, expectedAdmin, expectedSuper] of [
+    ["User", "Active", 403, 403],
+    ["Admin", "Active", 200, 403],
+    ["SuperAdmin", "Active", 200, 200],
+    ["Admin", "InActive", 403, 403],
+    ["SuperAdmin", "InActive", 403, 403],
+  ]) {
+    const base = await serveApp(t, {
+      supabase: createMockSupabase({ role, status }),
+    });
+    for (const [path, expected] of [
+      ["/api/admin/probe", expectedAdmin],
+      ["/api/super-admin/probe", expectedSuper],
+    ]) {
+      const res = await fetch(base + path, {
+        headers: { authorization: "Bearer valid-token" },
+      });
+      assert.equal(res.status, expected, role + status + path);
+      if (status === "InActive")
+        assert.equal((await res.json()).error, "ACCOUNT_INACTIVE");
+    }
+    const me = await fetch(base + "/api/auth/me", {
+      headers: { authorization: "Bearer valid-token" },
+    });
+    assert.equal(me.status, status === "Active" ? 200 : 403);
+  }
+  const base = await serveApp(t, { supabase: createMockSupabase() });
+  assert.equal((await fetch(base + "/api/admin/probe")).status, 401);
+});
+
+test("RPC errors do not synthesize an active profile", async (t) => {
+  const supabase = createMockSupabase();
+  const admin = {
+    rpc: async () => ({ data: null, error: { message: "private-rpc-error" } }),
+  };
+  const base = await serveApp(t, { supabase, admin });
+  const res = await fetch(base + "/api/auth/me", {
+    headers: { authorization: "Bearer valid-token" },
+  });
+  assert.equal(res.status, 503);
+  assert.equal((await res.json()).error, "PROFILE_UNAVAILABLE");
 });
