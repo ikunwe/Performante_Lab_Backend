@@ -3,6 +3,7 @@ const cors = require("cors");
 const { authRoutes } = require("./routes/auth");
 const { catalogRoutes } = require("./routes/catalog");
 const { buildsRoutes } = require('./routes/builds');
+const { adminRoutes } = require("./routes/admin");
 const { requireAuth } = require("./middleware/require-auth");
 const {
   requireAdmin,
@@ -23,7 +24,7 @@ function createApp({
     cors({
       origin: (origin, callback) =>
         callback(null, !origin || origins.includes(origin)),
-      methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+      methods: ["GET", "POST", "PUT", "PATCH", "DELETE",  "OPTIONS"],
       allowedHeaders: ["Authorization", "Content-Type"],
     }),
   );
@@ -44,6 +45,7 @@ function createApp({
     requireAuth(supabase),
     requireSuperAdmin(supabase, { admin }),
   );
+  app.use("/api/admin", adminRoutes({ admin, supabase }));
   if (typeof routes === "function") {
     routes(app, { supabase, admin });
   } else if (Array.isArray(routes)) {
