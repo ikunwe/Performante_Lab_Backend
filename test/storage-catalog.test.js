@@ -190,3 +190,24 @@ test("reads Admin multi-angle car and nested category/product folders without Ca
     ),
   );
 });
+
+test('reads versioned alpha-mask metadata without making masks into catalog products or covers', async () => {
+  const f = fixture();
+  f.tree['Honda/Civic-FE/Part/Enkei'].push(folder('Wheel-New'), file('front.mask.png'));
+  f.tree['Honda/Civic-FE/Part/Enkei/Wheel-New'] = [file('45_front.mask.png'),file('45_front.layer.png'),file('45_front.png'),file('45_Back.mask.png'),file('45_Back.jpg')];
+  const data = await createStorageCatalog({admin:f.admin}).get();
+  assert.equal(data.parts.length, 4);
+  const wheel = data.parts.find(p=>p.name==='Wheel New');
+  assert.ok(wheel.views.front45.includes('/45_front.png?v='));
+  assert.ok(wheel.masks.front45.includes('/45_front.mask.png?v='));
+  assert.ok(wheel.layerViews.front45.includes('/45_front.layer.png?v='));
+  assert.ok(wheel.masks.rear45.includes('/45_Back.mask.png?v='));
+  assert.ok(!wheel.previewImage.includes('.mask.'));
+  f.tree['Honda/Civic-FE/Part/Enkei/Wheel-New'].find(f=>f.name==='45_front.layer.png').updated_at='2026-11-02T00:00:00Z';
+  const interrupted = await createStorageCatalog({admin:f.admin}).get();
+  assert.equal(interrupted.parts.find(p=>p.name==='Wheel New').masks.front45, undefined);
+
+  f.tree['Honda/Civic-FE/Part/Enkei/Wheel-New'] = [file('45_front.mask.png'),file('45_front.layer.png')];
+  const next = await createStorageCatalog({admin:f.admin}).get();
+  assert.equal(next.parts.length,3);
+});

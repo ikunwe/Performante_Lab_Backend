@@ -120,7 +120,7 @@ async function requestDtos(admin, rows) {
   const paths = [
     ...new Set(
       rows.flatMap((row) =>
-        (row.image_paths || []).filter(
+        (row.status === "Cancelled" ? [] : row.image_paths || []).filter(
           (path) =>
             typeof path === "string" &&
             path.startsWith(`${row.user_id}/${row.id}/`) &&
@@ -156,7 +156,7 @@ async function requestDtos(admin, rows) {
     manufacturer: row.request_details?.manufacturer || "",
     source: row.request_details?.source || "",
     author: row.profiles?.username || "สมาชิก",
-    images: (row.image_paths || []).flatMap((path) =>
+    images: (row.status === "Cancelled" ? [] : row.image_paths || []).flatMap((path) =>
       signed.has(path) ? [signed.get(path)] : [],
     ),
     createdAt: row.created_at,
