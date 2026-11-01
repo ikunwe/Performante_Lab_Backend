@@ -1,3 +1,4 @@
+const { createStorageCatalog } = require("../services/storage-catalog");
 const { Router } = require("express");
 const { requireAuth } = require("../middleware/require-auth");
 const { requireActive } = require("../middleware/require-role");
@@ -10,8 +11,8 @@ const {
 const UUID =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const columns = "id,title,tag,car_name,image_url,parts,created_at,updated_at";
-function dto(row) {
-  const car = resolveCar(row.tag);
+function dto(row, assets) {
+  const car = resolveCar(row.tag, assets);
   return {
     id: row.id,
     name: row.title,
@@ -41,11 +42,11 @@ function payload(input, assets) {
     /[\u0000-\u001f\u007f]/.test(input.name) ||
     typeof input.carId !== "string" ||
     !Array.isArray(input.partIds) ||
-    input.partIds.length > 5 ||
+    input.partIds.length > 9 ||
     input.partIds.some((id) => typeof id !== "string" || id.length > 100)
   )
     return null;
-  const car = resolveCar(input.carId);
+  const car = resolveCar(input.carId, assets);
   if (!car) return null;
   const available = partsFor(car, assets);
   const selected = input.partIds.map((id) =>
@@ -75,18 +76,17 @@ function buildsRoutes(
   } = {},
 ) {
   const router = Router();
+  const storage = createStorageCatalog({ admin });
   router.use((_req, res, next) => {
     res.set("Cache-Control", "no-store");
     next();
   });
   router.use(requireAuth(supabase), requireActive(supabase, { admin }));
   const unavailable = (res) =>
-    res
-      .status(503)
-      .json({
-        error: "BUILDS_UNAVAILABLE",
-        message: "เชื่อมต่อข้อมูล Build ไม่สำเร็จ กรุณาลองใหม่",
-      });
+    res.status(503).json({
+      error: "BUILDS_UNAVAILABLE",
+      message: "เชื่อมต่อข้อมูล Build ไม่สำเร็จ กรุณาลองใหม่",
+    });
   const query = () => admin.from("builds");
   router.get("/", async (req, res) => {
     const offset =
@@ -102,8 +102,11 @@ function buildsRoutes(
         .order("id", { ascending: false })
         .range(offset, offset + 99);
       if (error) return unavailable(res);
+      const storageData = data.some((row) => row.tag.startsWith("storage-car:"))
+        ? await storage.get()
+        : null;
       return res.json({
-        builds: data.map(dto),
+        builds: data.map((row) => dto(row, storageData)),
         nextOffset: data.length === 100 ? offset + 100 : null,
       });
     } catch {
@@ -114,14 +117,17 @@ function buildsRoutes(
     if (!UUID.test(req.body?.id ?? ""))
       return res.status(400).json({ error: "INVALID_BUILD" });
     try {
-      const value = payload(req.body, assets());
+      const catalog =
+        typeof req.body?.carId === "string" &&
+        req.body.carId.startsWith("storage-car:")
+          ? await storage.get(true)
+          : assets();
+      const value = payload(req.body, catalog);
       if (!value)
-        return res
-          .status(400)
-          .json({
-            error: "INVALID_BUILD",
-            message: "ชื่อ รถ หรือรายการพาร์ทไม่ถูกต้อง กรุณาเลือกใหม่",
-          });
+        return res.status(400).json({
+          error: "INVALID_BUILD",
+          message: "ชื่อ รถ หรือรายการพาร์ทไม่ถูกต้อง กรุณาเลือกใหม่",
+        });
       const { data, error } = await query()
         .insert({
           id: req.body.id,
@@ -147,23 +153,19 @@ function buildsRoutes(
           existing.data.tag === value.tag &&
           JSON.stringify(existing.data.parts) === JSON.stringify(value.parts)
         )
-          return res.json({ build: dto(existing.data) });
-        return res
-          .status(409)
-          .json({
-            error: "BUILD_CONFLICT",
-            message: "รายการนี้มีอยู่แล้ว กรุณาโหลดข้อมูลใหม่",
-          });
+          return res.json({ build: dto(existing.data, catalog) });
+        return res.status(409).json({
+          error: "BUILD_CONFLICT",
+          message: "รายการนี้มีอยู่แล้ว กรุณาโหลดข้อมูลใหม่",
+        });
       }
       if (error?.code === "23503")
-        return res
-          .status(409)
-          .json({
-            error: "PROFILE_REQUIRED",
-            message: "กรุณาเปิดหน้าโปรไฟล์ให้โหลดสำเร็จแล้วลองบันทึกอีกครั้ง",
-          });
+        return res.status(409).json({
+          error: "PROFILE_REQUIRED",
+          message: "กรุณาเปิดหน้าโปรไฟล์ให้โหลดสำเร็จแล้วลองบันทึกอีกครั้ง",
+        });
       if (error) return unavailable(res);
-      return res.status(201).json({ build: dto(data) });
+      return res.status(201).json({ build: dto(data, catalog) });
     } catch {
       return unavailable(res);
     }
@@ -172,14 +174,17 @@ function buildsRoutes(
     if (!UUID.test(req.params.id))
       return res.status(400).json({ error: "INVALID_BUILD" });
     try {
-      const value = payload(req.body, assets());
+      const catalog =
+        typeof req.body?.carId === "string" &&
+        req.body.carId.startsWith("storage-car:")
+          ? await storage.get(true)
+          : assets();
+      const value = payload(req.body, catalog);
       if (!value)
-        return res
-          .status(400)
-          .json({
-            error: "INVALID_BUILD",
-            message: "ชื่อ รถ หรือรายการพาร์ทไม่ถูกต้อง กรุณาเลือกใหม่",
-          });
+        return res.status(400).json({
+          error: "INVALID_BUILD",
+          message: "ชื่อ รถ หรือรายการพาร์ทไม่ถูกต้อง กรุณาเลือกใหม่",
+        });
       const { data, error } = await query()
         .update({ ...value, updated_at: now() })
         .eq("id", req.params.id)
@@ -192,7 +197,7 @@ function buildsRoutes(
         return res
           .status(404)
           .json({ error: "BUILD_NOT_FOUND", message: "ไม่พบ Build ของคุณ" });
-      return res.json({ build: dto(data) });
+      return res.json({ build: dto(data, catalog) });
     } catch {
       return unavailable(res);
     }

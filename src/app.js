@@ -4,6 +4,7 @@ const { authRoutes } = require("./routes/auth");
 const { catalogRoutes } = require("./routes/catalog");
 const { buildsRoutes } = require('./routes/builds');
 const { adminRoutes } = require("./routes/admin");
+const { discoverRoutes } = require('./routes/discover');
 const { requireAuth } = require("./middleware/require-auth");
 const {
   requireAdmin,
@@ -34,6 +35,7 @@ function createApp({
   app.use("/api/auth", authRoutes(supabase, { admin, createAuthClient }));
   app.use("/api/catalog", catalogRoutes(admin));
   app.use('/api/builds', buildsRoutes(supabase, { admin }));
+  app.use('/api/discover', discoverRoutes(supabase, { admin }));
   // Guard extension routes before mounting them; catalog remains public.
   app.use(
     "/api/admin",

@@ -1,6 +1,23 @@
 # Performante Lab API
 
-Catalog API: `GET /api/catalog/brands?scope=starter` อ่านแบรนด์จาก `car_brand_reference` ใน Supabase และ cache ฝั่ง server 1 ชั่วโมง ใช้ `scope=all` สำหรับข้อมูลอ้างอิงทั้งหมด ต้อง restart Backend หลังเพิ่ม route นี้ Frontend มี memory/localStorage cache แยกตามโปรเจกต์และ scope รายละเอียดอยู่ที่ Frontend `docs/brand-cache.md`
+## User catalog from Storage
+
+หน้า User (Catalog, Compare และตัวเลือก Create Build) อ่านโครงสร้างโฟลเดอร์ใน
+bucket `catalog` ผ่าน `GET /api/catalog/storage` แล้ว ไม่ต้อง import ตาราง Catalog
+และไม่มี SQL เพิ่ม ดู frontend `docs/storage-user-catalog.md` สำหรับ path และ cache
+
+Backend cache รายการ 1 นาที, Frontend 5 นาที; `?refresh=1` อ่าน Storage ใหม่
+ชื่อไฟล์ `logo.*` แยกจากสินค้า และ BodyKit หมายถึงชุดแต่งรอบคันเสมอ
+Build ที่ใช้รหัส `storage-car:*` / `storage-part:*` ตรวจจาก Storage ฝั่ง server
+ก่อนบันทึก ส่วน Build รุ่นเดิมยังตรวจด้วย catalog เดิมเพื่อรองรับข้อมูลเก่า
+ต้อง restart Backend หลังแก้ routes
+
+API อ้างอิงเดิม `/api/catalog/brands`, `/api/catalog/models` และ
+`/api/catalog/models/export` ถูกถอดออกแล้ว (ตอบ 404) ข้อมูลในตาราง
+`car_brand_reference` และไฟล์ dataset ยังคงอยู่ ไม่มี migration หรือการลบข้อมูล
+ดู `data/README.md` สำหรับข้อมูลอ้างอิงและการรองรับ Build เก่า
+
+
 
 Express API สำหรับตรวจ Supabase access token แยกจาก OAuth หน้าบ้าน โค้ดไม่รับ/จัดเก็บ Google Client Secret
 
@@ -19,7 +36,7 @@ Express API สำหรับตรวจ Supabase access token แยกจา
 
 คู่มือตั้ง Supabase, Google Cloud Console และตัวอย่าง env อยู่ใน Frontend: `docs/google-login-setup.md` ทั้งสอง repo มี `.env.example`; `.env` ไม่เข้า Git
 
-Backend มี API อ่านแบรนด์/รุ่นรถและบันทึก Builds แล้ว Google Login ทำผ่าน Supabase Auth ส่วนการตรวจสถานะบัญชีและสิทธิ์บน Backend ต้องใช้ `SUPABASE_SECRET_KEY` ฝั่ง server
+Backend มี API อ่าน Catalog จาก Storage และบันทึก Builds แล้ว Google Login ทำผ่าน Supabase Auth ส่วนการตรวจสถานะบัญชีและสิทธิ์บน Backend ต้องใช้ `SUPABASE_SECRET_KEY` ฝั่ง server
 
 ## Profile และ Username Login
 
@@ -62,3 +79,13 @@ Full Body Kit ใช้ร่วมกับพาร์ทแยกไม่ไ
 `node scripts/smoke-builds-live.js` เป็น smoke test แบบเลือกเรียกเอง ต้องตั้ง env แล้ว
 สคริปต์สร้างบัญชีชั่วคราวที่ยืนยันอีเมลแล้ว (ไม่ส่งเมล) ทดสอบ API กับ Supabase จริง
 และล้างเฉพาะบัญชี/ข้อมูลทดสอบของตัวเองหลังจบ ไม่อยู่ใน npm test ปกติ
+
+## Discover Builds
+
+`GET /api/discover/builds?offset=0` อ่าน Build จริง ครั้งละ 100 รายการ พร้อม nextOffset
+ไม่ส่ง token: เห็นเฉพาะรายการสาธารณะที่ยังไม่ลบ; ส่ง token ของบัญชี Active:
+เห็นรายการสาธารณะและ Build ส่วนตัวของตัวเอง โดยไม่เปิดของส่วนตัวของคนอื่น
+response ไม่ส่ง user_id/email และใช้ Cache-Control: no-store
+
+Frontend รีเฟรชหลังบันทึก/ลบ Build และมีปุ่มรีเฟรช ไม่เปลี่ยน is_public ของข้อมูลเดิม
+ไม่มี SQL เพิ่ม รายละเอียดอยู่ใน frontend `docs/discover-builds.md`
