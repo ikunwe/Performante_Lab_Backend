@@ -120,3 +120,26 @@ POST จำกัด 10 ครั้งต่อบัญชีใน 10 นา�
 
 `node scripts/smoke-requests-live.js` ทดสอบ Supabase จริงและล้างเฉพาะบัญชี/ข้อมูล/ภาพทดสอบ
 ไม่รวมใน npm test รายละเอียด UI อยู่ frontend docs/requests-ui.md
+
+
+## Likes API
+
+รัน `supabase/migrations/202611010002_build_likes.sql` แล้ว restart Backend
+ตาราง build_likes เก็บคู่ user_id/build_id ไม่ซ้ำและไม่เปลี่ยน Build เดิม
+ทุก endpoint ต้องเป็นบัญชี Active และใช้ owner จาก token เท่านั้น
+
+- GET `/api/likes/builds?offset=0`: Build สาธารณะที่บัญชีนี้ Like (ครั้งละ 100 พร้อม nextOffset)
+- PUT `/api/likes/:buildId`: Like แบบ idempotent เฉพาะ Build สาธารณะที่ยังไม่ลบ
+- DELETE `/api/likes/:buildId`: ลบ Like เฉพาะบัญชีนี้ (retry ได้)
+
+User → เมนูโปรไฟล์ → Liked อ่านข้อมูลนี้ผ่าน backend
+ไม่มีการแชร์ Like ข้ามบัญชี และ RLS ไม่ให้ browser เขียนตรง
+รายละเอียดอยู่ frontend docs/likes.md
+`node scripts/smoke-likes-live.js` เป็น opt-in cloud test ที่สร้างและล้างเฉพาะข้อมูลทดสอบ
+
+
+ยอด Like จริงเก็บใน builds.likes โดยรัน migration
+`supabase/migrations/202611010003_build_like_counts.sql` หลัง migration build_likes
+migration คำนวณยอดเดิมจากแถวจริง และติด trigger เพิ่ม/ลดยอดเมื่อเพิ่ม/ลบ Like
+การ retry หรือกดซ้ำไม่เพิ่มยอดซ้ำ มี guard ไม่ให้ client กำหนดยอดเอง
+PUT/DELETE Like คืนยอดล่าสุดเพื่อใช้ปรับ UI ที่เปลี่ยนยอดล่วงหน้าให้ตรงกับฐานข้อมูล

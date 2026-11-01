@@ -2,6 +2,7 @@ const { Router } = require("express");
 const { requireAuth } = require("../middleware/require-auth");
 const { requireActive } = require("../middleware/require-role");
 const { createStorageCatalog } = require("../services/storage-catalog");
+const { showcaseBuilds } = require("../services/showcase-builds");
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 function discoverRoutes(supabase, { admin } = {}) {
   const router = Router();
@@ -35,63 +36,7 @@ function discoverRoutes(supabase, { admin } = {}) {
         .order("id", { ascending: false })
         .range(offset, offset + 99);
       if (error || !Array.isArray(data)) throw new Error("database");
-      const authors = new Map();
-      if (data.length) {
-        const profiles = await admin
-          .from("profiles")
-          .select("id,username")
-          .in("id", [...new Set(data.map((row) => row.user_id))]);
-        if (profiles.error) throw new Error("profiles");
-        for (const profile of profiles.data || [])
-          authors.set(profile.id, profile.username || "สมาชิก");
-      }
-      let catalog;
-      if (
-        data.some(
-          (row) =>
-            (typeof row.tag === "string" &&
-              row.tag.startsWith("storage-car:")) ||
-            (Array.isArray(row.parts) ? row.parts : []).some(
-              (id) => typeof id === "string" && id.startsWith("storage-part:"),
-            ),
-        )
-      ) {
-        // Stored build covers still work when optional product-name lookup is unavailable.
-        try {
-          catalog = await storage.get();
-        } catch {
-          /* Keep recorded build data. */
-        }
-      }
-      const products = new Map(
-        (catalog?.parts || []).map((part) => [part.id, part]),
-      );
-      const builds = data.map((row) => ({
-        id: row.id,
-        title: row.title || "Untitled Build",
-        author: authors.get(row.user_id) || "สมาชิก",
-        car: row.car_name || "ยังไม่ระบุรุ่นรถ",
-        carId: row.tag,
-        category: row.category || "Street",
-        image:
-          catalog?.cars.find((car) => car.id === row.tag)?.image ||
-          row.image_url ||
-          "",
-        budget: Number(row.budget),
-        likes: row.likes,
-        isOwn: row.user_id === owner,
-        isPublic: row.is_public,
-        createdAt: row.created_at,
-        parts: (Array.isArray(row.parts) ? row.parts : [])
-          .filter((id) => typeof id === "string")
-          .map(
-            (id) =>
-              products.get(id)?.name ||
-              (/^(storage-part:|local-part:)/.test(id)
-                ? "พาร์ทที่ไม่มีในแค็ตตาล็อกปัจจุบัน"
-                : id),
-          ),
-      }));
+      const builds = await showcaseBuilds(admin, storage, data, owner);
       return res.json({
         builds,
         nextOffset:
