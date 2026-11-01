@@ -6,6 +6,8 @@ const { buildsRoutes } = require('./routes/builds');
 const { adminRoutes } = require("./routes/admin");
 const { discoverRoutes } = require('./routes/discover');
 const { requestsRoutes, adminRequestsRoutes } = require('./routes/requests');
+const { likesRoutes } = require('./routes/likes');
+const { adminBuildsRoutes } = require('./routes/admin-builds');
 const { requireAuth } = require("./middleware/require-auth");
 const {
   requireAdmin,
@@ -38,6 +40,7 @@ function createApp({
   app.use('/api/builds', buildsRoutes(supabase, { admin }));
   app.use('/api/discover', discoverRoutes(supabase, { admin }));
   app.use('/api/requests', requestsRoutes(supabase, { admin }));
+  app.use('/api/likes', likesRoutes(supabase, { admin }));
   // Guard extension routes before mounting them; catalog remains public.
   app.use(
     "/api/admin",
@@ -51,6 +54,7 @@ function createApp({
   );
   app.use("/api/admin", adminRoutes({ admin, supabase }));
   app.use('/api/admin/requests', adminRequestsRoutes({ admin }));
+  app.use('/api/admin/builds', adminBuildsRoutes({ admin }));
   if (typeof routes === "function") {
     routes(app, { supabase, admin });
   } else if (Array.isArray(routes)) {
