@@ -62,8 +62,9 @@ Backend มี API อ่าน Catalog จาก Storage และบันท�
 ทุก endpoint ใต้ `/api/builds` ต้องใช้ Bearer token และบัญชี Active:
 
 - GET `/api/builds?offset=0`: โหลด Build ของตัวเอง ครั้งละ 100 รายการ พร้อม nextOffset
-- POST `/api/builds`: `{ id: UUID, name, carId, partIds }` บันทึกรายการใหม่เป็น private โดยกำหนด user_id จาก token เท่านั้น UUID เดิมกับ payload เดิมใช้ retry ได้
-- PUT `/api/builds/:id`: `{ name, carId, partIds }` แก้ไขเฉพาะรายการของตัวเอง
+- POST `/api/builds`: `{ id: UUID, name, category, carId, partIds }` บันทึกรายการใหม่เป็น private โดยกำหนด user_id จาก token เท่านั้น UUID เดิมกับ payload เดิมใช้ retry ได้
+- PUT `/api/builds/:id`: `{ name, category, carId, partIds }` แก้ไขเฉพาะรายการของตัวเอง
+- PATCH `/api/builds/:id/visibility`: `{ isPublic: boolean }` เปลี่ยนสถานะเฉพาะ Build ของเจ้าของที่ยังไม่ลบ ไม่แก้รถหรือพาร์ท
 - DELETE `/api/builds/:id`: soft delete เฉพาะรายการของตัวเอง (retry ได้)
 
 ใช้ตาราง builds เดิม ไม่ต้องรัน SQL เพิ่ม โดย title = name, tag = stable carId,
@@ -84,8 +85,38 @@ Full Body Kit ใช้ร่วมกับพาร์ทแยกไม่ไ
 
 `GET /api/discover/builds?offset=0` อ่าน Build จริง ครั้งละ 100 รายการ พร้อม nextOffset
 ไม่ส่ง token: เห็นเฉพาะรายการสาธารณะที่ยังไม่ลบ; ส่ง token ของบัญชี Active:
-เห็นรายการสาธารณะและ Build ส่วนตัวของตัวเอง โดยไม่เปิดของส่วนตัวของคนอื่น
+เห็นเฉพาะรายการสาธารณะทั้งของตัวเองและผู้อื่น ส่วน Build ส่วนตัวดูได้ใน My Builds เท่านั้น
 response ไม่ส่ง user_id/email และใช้ Cache-Control: no-store
 
-Frontend รีเฟรชหลังบันทึก/ลบ Build และมีปุ่มรีเฟรช ไม่เปลี่ยน is_public ของข้อมูลเดิม
+Frontend รีเฟรชหลังบันทึก/ลบ Build และมีปุ่มรีเฟรช Build ใหม่เป็น private ตั้งแต่ Save และเจ้าของเปลี่ยนสถานะได้ใน My Builds โดยไม่เปลี่ยน is_public ของข้อมูลเดิมอัตโนมัติ
 ไม่มี SQL เพิ่ม รายละเอียดอยู่ใน frontend `docs/discover-builds.md`
+
+Storage reader รองรับไฟล์มุม `45_front`, `front`, `45_Back`, `Back` และ `CarPicture` เดิม
+รวมถึง BodyKit/{Manufacturer}/{Kit}/{angle} และ Part/{Category}/{Manufacturer}/{Part}/{angle}
+ไม่มีการย้าย/เปลี่ยนชื่อไฟล์จริง ดู frontend docs/storage-user-catalog.md
+
+Build category รองรับ Street / Track / Show และใช้คอลัมน์ category เดิม ไม่ต้องรัน SQL เพิ่ม
+เมื่อ client เดิมไม่ส่ง category ใน PUT จะคงค่าเดิม ส่วน POST ใช้ Street เป็นค่าเริ่มต้น
+
+
+## Requests API
+
+รัน `supabase/migrations/202611010001_request_attachments.sql` และ restart Backend
+เพิ่ม metadata/ภาพให้ตาราง part_requests เดิม และสร้าง private bucket request-attachments
+ไม่ใช้ bucket catalog เก็บภาพคำขอ และไม่เพิ่มสินค้าใน Catalog อัตโนมัติเมื่อ Accept
+
+- POST `/api/requests`: Active user ส่ง multipart field data (JSON) และ images (1–5 PNG/JPG/WebP รูปละไม่เกิน 10 MB)
+- GET `/api/requests?offset=0`: รายการของเจ้าของ token เท่านั้น
+- GET `/api/admin/requests?offset=0`: Active Admin/SuperAdmin อ่านทุกคำขอ
+- PATCH `/api/admin/requests/:id/status`: Admin ส่ง `{status:"Accepted"|"Rejected"}`
+
+Response ภาพเป็น signed URLs อายุ 1 ชั่วโมง ไม่เปิด bucket เป็น public
+รายการแบ่งครั้งละ 100 พร้อม nextOffset และใช้ Cache-Control: no-store
+การเขียนตารางนี้โดย browser ตรงถูกปิด ใช้ backend ทั้ง User และ Admin
+POST จำกัด 10 ครั้งต่อบัญชีใน 10 นาที (memory ต่อ process)
+และใช้ request UUID + content hash ป้องกันรายการซ้ำเมื่อ retry
+กรณีอัปโหลดสำเร็จแต่ insert ล้มเหลว อาจมีไฟล์ private ค้างใต้ owner/request
+เพื่อให้ retry ใช้ซ้ำ ไม่ลบไฟล์ที่อาจมีการ submit พร้อมกันสำเร็จ
+
+`node scripts/smoke-requests-live.js` ทดสอบ Supabase จริงและล้างเฉพาะบัญชี/ข้อมูล/ภาพทดสอบ
+ไม่รวมใน npm test รายละเอียด UI อยู่ frontend docs/requests-ui.md

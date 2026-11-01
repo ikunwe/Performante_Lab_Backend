@@ -22,16 +22,14 @@ function discoverRoutes(supabase, { admin } = {}) {
       if (!admin) throw new Error("not configured");
       const owner = req.authUser?.id ?? null;
       if (owner && !UUID.test(owner)) throw new Error("invalid identity");
-      let query = admin
+      const query = admin
         .from("builds")
         .select(
           "id,user_id,title,car_name,tag,image_url,parts,budget,category,likes,is_public,created_at",
         )
-        .eq("is_deleted", false);
-      // Service client bypasses RLS: visibility must be enforced here, never by the UI.
-      query = owner
-        ? query.or(`is_public.eq.true,user_id.eq.${owner}`)
-        : query.eq("is_public", true);
+        .eq("is_deleted", false)
+        .eq("is_public", true);
+      // Discover is public-only, including records owned by the current viewer.
       const { data, error } = await query
         .order("created_at", { ascending: false })
         .order("id", { ascending: false })
@@ -51,8 +49,9 @@ function discoverRoutes(supabase, { admin } = {}) {
       if (
         data.some(
           (row) =>
-            row.tag.startsWith("storage-car:") ||
-            row.parts.some(
+            (typeof row.tag === "string" &&
+              row.tag.startsWith("storage-car:")) ||
+            (Array.isArray(row.parts) ? row.parts : []).some(
               (id) => typeof id === "string" && id.startsWith("storage-part:"),
             ),
         )
@@ -69,20 +68,21 @@ function discoverRoutes(supabase, { admin } = {}) {
       );
       const builds = data.map((row) => ({
         id: row.id,
-        title: row.title,
+        title: row.title || "Untitled Build",
         author: authors.get(row.user_id) || "สมาชิก",
-        car: row.car_name,
+        car: row.car_name || "ยังไม่ระบุรุ่นรถ",
         carId: row.tag,
-        category: row.category,
+        category: row.category || "Street",
         image:
           catalog?.cars.find((car) => car.id === row.tag)?.image ||
-          row.image_url,
+          row.image_url ||
+          "",
         budget: Number(row.budget),
         likes: row.likes,
         isOwn: row.user_id === owner,
         isPublic: row.is_public,
         createdAt: row.created_at,
-        parts: row.parts
+        parts: (Array.isArray(row.parts) ? row.parts : [])
           .filter((id) => typeof id === "string")
           .map(
             (id) =>
@@ -98,12 +98,10 @@ function discoverRoutes(supabase, { admin } = {}) {
           data.length === 100 && offset + 100 <= 10000 ? offset + 100 : null,
       });
     } catch {
-      return res
-        .status(503)
-        .json({
-          error: "DISCOVER_UNAVAILABLE",
-          message: "โหลดรายการ Build ไม่สำเร็จ กรุณาลองใหม่",
-        });
+      return res.status(503).json({
+        error: "DISCOVER_UNAVAILABLE",
+        message: "โหลดรายการ Build ไม่สำเร็จ กรุณาลองใหม่",
+      });
     }
   });
   return router;

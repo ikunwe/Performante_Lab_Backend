@@ -137,7 +137,7 @@ const input = () => ({
   partIds: [front.id],
 });
 
-test("build API persists canonical cars and parts privately, retries creates, updates and soft deletes", async (t) => {
+test("build API creates private canonical builds, retries creates, updates and soft deletes", async (t) => {
   const { rows, request } = await fixture(t);
   const draft = input();
   const create = await request("POST", "", {
@@ -155,12 +155,14 @@ test("build API persists canonical cars and parts privately, retries creates, up
   assert.equal((await request("POST", "", draft)).status, 200);
   assert.equal(rows.length, 1);
   assert.deepEqual((await (await request("GET")).json()).builds, [saved]);
+  rows[0].is_public = false; // Simulate an existing private Build. Editing must preserve it.
   const edited = await request("PUT", "/" + saved.id, {
     ...draft,
     name: "Updated",
     partIds: [],
   });
   assert.equal(edited.status, 200);
+  assert.equal(rows[0].is_public, false);
   assert.equal((await edited.json()).build.createdAt, saved.createdAt);
   assert.equal((await request("DELETE", "/" + saved.id)).status, 204);
   assert.equal((await request("DELETE", "/" + saved.id)).status, 204);
@@ -221,4 +223,84 @@ test("build failures do not report success or expose database messages", async (
     assert.equal(res.headers.get("cache-control"), "no-store");
     assert.ok(!(await res.text()).includes("private-database-detail"));
   }
+});
+
+test("visibility changes are owner-only, boolean, reversible and do not change build contents", async (t) => {
+  const { request, rows } = await fixture(t);
+  const draft = input();
+  const created = await request("POST", "", draft);
+  assert.equal((await created.json()).build.isPublic, false);
+  for (const token of ["b", "inactive", "invalid"]) {
+    assert.equal(
+      (
+        await request(
+          "PATCH",
+          "/" + draft.id + "/visibility",
+          { isPublic: true },
+          token,
+        )
+      ).status,
+      token === "b" ? 404 : token === "inactive" ? 403 : 401,
+    );
+  }
+  for (const value of ["true", null, 1])
+    assert.equal(
+      (
+        await request("PATCH", "/" + draft.id + "/visibility", {
+          isPublic: value,
+        })
+      ).status,
+      400,
+    );
+  assert.equal(
+    (await request("PATCH", "/not-a-uuid/visibility", { isPublic: true }))
+      .status,
+    400,
+  );
+  for (const isPublic of [true, false]) {
+    const response = await request("PATCH", "/" + draft.id + "/visibility", {
+      isPublic,
+      user_id: "b",
+      title: "Forged",
+    });
+    assert.equal(response.status, 200);
+    assert.equal((await response.json()).visibility.isPublic, isPublic);
+    assert.equal(rows[0].is_public, isPublic);
+    assert.equal(rows[0].title, draft.name);
+    assert.equal(rows[0].user_id, "a");
+  }
+  await request("DELETE", "/" + draft.id);
+  assert.equal(
+    (await request("PATCH", "/" + draft.id + "/visibility", { isPublic: true }))
+      .status,
+    404,
+  );
+});
+
+test("visibility database errors are reported without pretending the state was saved", async (t) => {
+  const { request, fail } = await fixture(t);
+  const draft = input();
+  await request("POST", "", draft);
+  fail();
+  assert.equal(
+    (await request("PATCH", "/" + draft.id + "/visibility", { isPublic: true }))
+      .status,
+    503,
+  );
+});
+
+
+test('build category persists across create, read and update, with strict allowed values', async t => {
+  const {request,rows}=await fixture(t); const draft={...input(),category:'Track'};
+  const created=await request('POST','',draft); assert.equal(created.status,201);
+  assert.equal((await created.json()).build.category,'Track'); assert.equal(rows[0].category,'Track');
+  assert.equal((await (await request('GET')).json()).builds[0].category,'Track');
+  assert.equal((await request('POST','',draft)).status,200);
+  assert.equal((await request('POST','',{...draft,category:'Show'})).status,409);
+  assert.equal((await request('PUT','/'+draft.id,{...draft,category:'Show'})).status,200);
+  assert.equal(rows[0].category,'Show');
+  const {category,...legacy}=draft;
+  assert.equal((await request('PUT','/'+draft.id,legacy)).status,200);
+  assert.equal(rows[0].category,'Show');
+  for(const category of ['Unknown',null,123]) assert.equal((await request('PUT','/'+draft.id,{...draft,category})).status,400);
 });

@@ -334,4 +334,17 @@ test("only grants CORS access to configured origins and permits auth preflight",
       .get("access-control-allow-headers")
       .includes("Authorization"),
   );
+  const adminPreflight = await fetch(base + "/api/admin/users", {
+    method: "OPTIONS",
+    headers: {
+      origin: "http://localhost:4200",
+      "access-control-request-method": "GET",
+      "access-control-request-headers": "authorization,cache-control",
+    },
+  });
+  assert.equal(adminPreflight.status, 204);
+  assert.equal(adminPreflight.headers.get("access-control-allow-origin"), "http://localhost:4200");
+  const permitted = adminPreflight.headers.get("access-control-allow-headers").toLowerCase().split(",").map(value => value.trim());
+  assert.ok(permitted.includes("authorization"));
+  assert.ok(permitted.includes("cache-control"));
 });

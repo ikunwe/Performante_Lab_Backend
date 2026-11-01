@@ -122,22 +122,19 @@ test("anonymous Discover returns only published, non-deleted builds and no priva
   assert.ok(!("user_id" in data.builds[0]));
   assert.ok(!("email" in data.builds[0]));
 });
-test("signed-in Discover includes own private builds but never another account private builds", async (t) => {
-  const { get } = await setup(t);
-  const a = await (await get("a")).json();
-  assert.deepEqual(
-    a.builds.map((b) => b.id),
-    ["public", "mine"],
-  );
-  assert.equal(a.builds[1].isOwn, true);
-  assert.equal(a.builds[1].isPublic, false);
-  const b = await (await get("b")).json();
-  assert.deepEqual(
-    b.builds.map((b) => b.id),
-    ["public", "other-private"],
-  );
-  assert.ok(b.builds.every((row) => row.id !== "deleted"));
+test("signed-in Discover includes own public builds and excludes every private build", async (t) => {
+  const { get, rows } = await setup(t);
+  rows.push(row('own-public', A, true));
+  const a = await (await get('a')).json();
+  assert.deepEqual(a.builds.map(b=>b.id),['public','own-public']);
+  assert.equal(a.builds[1].isOwn,true);
+  assert.ok(a.builds.every(b=>b.isPublic));
+  const b = await (await get('b')).json();
+  assert.deepEqual(b.builds.map(b=>b.id),['public','own-public']);
+  assert.equal(b.builds[0].isOwn,true);
+  assert.ok(b.builds.every(b=>b.isPublic));
 });
+
 test("invalid and suspended tokens cannot fall back to authenticated data", async (t) => {
   const { get } = await setup(t);
   assert.equal((await get("invalid")).status, 401);
@@ -165,4 +162,23 @@ test("database outages return an explicit error without exposing internals or sa
   assert.equal(body.error, "DISCOVER_UNAVAILABLE");
   assert.ok(!JSON.stringify(body).includes("private-details"));
   assert.ok(!body.builds);
+});
+
+test("public Admin builds with missing optional legacy fields remain visible", async (t) => {
+  const sample = {
+    ...row("legacy-public", B, true),
+    tag: null,
+    parts: null,
+    car_name: null,
+    image_url: null,
+    category: null,
+  };
+  const { get } = await setup(t, [sample]);
+  const response = await get("a");
+  assert.equal(response.status, 200);
+  const data = await response.json();
+  assert.equal(data.builds.length, 1);
+  assert.equal(data.builds[0].isOwn, false);
+  assert.equal(data.builds[0].category, "Street");
+  assert.deepEqual(data.builds[0].parts, []);
 });

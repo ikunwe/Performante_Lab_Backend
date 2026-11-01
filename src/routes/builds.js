@@ -10,7 +10,8 @@ const {
 } = require("../services/build-catalog");
 const UUID =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-const columns = "id,title,tag,car_name,image_url,parts,created_at,updated_at";
+const columns =
+  "id,title,tag,car_name,image_url,parts,category,is_public,created_at,updated_at";
 function dto(row, assets) {
   const car = resolveCar(row.tag, assets);
   return {
@@ -29,6 +30,8 @@ function dto(row, assets) {
           },
         }),
     partIds: row.parts,
+    category: row.category || 'Street',
+    isPublic: row.is_public === true,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   };
@@ -40,6 +43,7 @@ function payload(input, assets) {
     !input.name.trim() ||
     [...input.name.trim()].length > 80 ||
     /[\u0000-\u001f\u007f]/.test(input.name) ||
+    (input.category !== undefined && !['Street','Track','Show'].includes(input.category)) ||
     typeof input.carId !== "string" ||
     !Array.isArray(input.partIds) ||
     input.partIds.length > 9 ||
@@ -61,6 +65,7 @@ function payload(input, assets) {
     return null;
   return {
     title: input.name.trim(),
+    ...(input.category !== undefined ? {category:input.category} : {}),
     tag: car.id,
     car_name: car.name,
     parts: [...input.partIds],
@@ -133,6 +138,7 @@ function buildsRoutes(
           id: req.body.id,
           user_id: req.authUser.id,
           ...value,
+          category: value.category ?? 'Street',
           is_public: false,
           is_deleted: false,
         })
@@ -150,6 +156,7 @@ function buildsRoutes(
         if (
           existing.data &&
           existing.data.title === value.title &&
+          existing.data.category === (value.category ?? 'Street') &&
           existing.data.tag === value.tag &&
           JSON.stringify(existing.data.parts) === JSON.stringify(value.parts)
         )
@@ -198,6 +205,38 @@ function buildsRoutes(
           .status(404)
           .json({ error: "BUILD_NOT_FOUND", message: "ไม่พบ Build ของคุณ" });
       return res.json({ build: dto(data, catalog) });
+    } catch {
+      return unavailable(res);
+    }
+  });
+  router.patch("/:id/visibility", async (req, res) => {
+    if (!UUID.test(req.params.id) || typeof req.body?.isPublic !== "boolean")
+      return res
+        .status(400)
+        .json({
+          error: "INVALID_VISIBILITY",
+          message: "สถานะการเผยแพร่ไม่ถูกต้อง",
+        });
+    try {
+      const { data, error } = await query()
+        .update({ is_public: req.body.isPublic, updated_at: now() })
+        .eq("id", req.params.id)
+        .eq("user_id", req.authUser.id)
+        .eq("is_deleted", false)
+        .select("id,is_public,updated_at")
+        .maybeSingle();
+      if (error) return unavailable(res);
+      if (!data)
+        return res
+          .status(404)
+          .json({ error: "BUILD_NOT_FOUND", message: "ไม่พบ Build ของคุณ" });
+      return res.json({
+        visibility: {
+          id: data.id,
+          isPublic: data.is_public,
+          updatedAt: data.updated_at,
+        },
+      });
     } catch {
       return unavailable(res);
     }
