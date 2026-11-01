@@ -73,6 +73,77 @@ function createStorageCatalog({ admin, now = Date.now, ttlMs = 60000 }) {
         ? publicUrl + "?v=" + encodeURIComponent(version)
         : publicUrl;
     }
+    const angles = {
+      "45_front": "front45",
+      front: "front",
+      side: "side",
+      "45_back": "rear45",
+      back: "rear",
+    };
+    function views(files, path) {
+      return Object.fromEntries(
+        files
+          .filter((f) => !isFolder(f) && imageFile(f.name))
+          .flatMap((f) => {
+            const angle = angles[f.name.replace(/\.[^.]+$/, "").toLowerCase()];
+            return angle ? [[angle, url(path + "/" + f.name, f)]] : [];
+          }),
+      );
+    }
+    const pickView = (images, category) =>
+      (category === "rear" || category === "spoilers"
+        ? images.rear45 || images.rear || images.front45 || images.front
+        : images.front45 || images.front || images.rear45 || images.rear) ||
+      images.side;
+    async function workshopParts(workshopPath, manufacturer, carId, category) {
+      const items = await list(workshopPath);
+      const logo = items.find(
+        (f) => !isFolder(f) && /^logo\./i.test(f.name) && imageFile(f.name),
+      );
+      const manufacturerLogo = logo
+        ? url(workshopPath + "/" + logo.name, logo)
+        : null;
+      const makePart = (path, name, previewImage, images) => ({
+        id: identity("part", path),
+        storagePath: path,
+        carId,
+        category: category || partCategory(name),
+        name: label(name),
+        finish: label(manufacturer),
+        manufacturerLogo,
+        previewImage,
+        ...(images ? { views: images } : {}),
+        crop: "full",
+        description: "",
+      });
+      const flat = items
+        .filter(
+          (f) => !isFolder(f) && imageFile(f.name) && !/^logo\./i.test(f.name),
+        )
+        .map((f) =>
+          makePart(
+            workshopPath + "/" + f.name,
+            f.name.replace(/\.[^.]+$/, ""),
+            url(workshopPath + "/" + f.name, f),
+          ),
+        );
+      const nested = await parallel(items.filter(isFolder), async (item) => {
+        const path = workshopPath + "/" + item.name;
+        const files = await list(path);
+        const images = views(files, path);
+        const preview =
+          pickView(images, category) ||
+          (() => {
+            const f = files.find(
+              (f) =>
+                !isFolder(f) && imageFile(f.name) && !/^logo\./i.test(f.name),
+            );
+            return f ? url(path + "/" + f.name, f) : null;
+          })();
+        return preview ? makePart(path, item.name, preview, images) : null;
+      });
+      return [...flat, ...nested.filter(Boolean)];
+    }
     const roots = (await list("")).filter(isFolder);
     const groups = await parallel(roots, async (root) => {
       const files = await list(root.name);
@@ -83,58 +154,56 @@ function createStorageCatalog({ admin, now = Date.now, ttlMs = 60000 }) {
       const models = await parallel(files.filter(isFolder), async (model) => {
         const path = root.name + "/" + model.name;
         const modelFiles = await list(path);
+        const images = views(modelFiles, path);
         const picture = modelFiles.find(
           (f) =>
             !isFolder(f) &&
             /^CarPicture\.(png|jpe?g|webp|svg|avif)$/i.test(f.name),
         );
-        // Ignore unrelated storage namespaces, e.g. old random-ID upload folders.
-        if (!picture) return null;
+        const cover =
+          pickView(images) ||
+          (picture ? url(path + "/" + picture.name, picture) : null);
+        // Ignore unrelated upload namespaces without a recognized car image.
+        if (!cover) return null;
         const car = {
           id: identity("car", path),
           storagePath: path,
           brand: label(root.name),
           name: label(root.name) + " " + label(model.name),
           modelName: label(model.name),
-          image: url(path + "/" + picture.name, picture),
+          image: cover,
+          views: images,
           body: "",
         };
         const parts = [];
         for (const type of ["BodyKit", "Part"]) {
           if (!modelFiles.some((f) => isFolder(f) && f.name === type)) continue;
           const typePath = path + "/" + type;
-          const workshops = (await list(typePath)).filter(isFolder);
-          const collections = await parallel(workshops, async (workshop) => {
-            const workshopPath = typePath + "/" + workshop.name;
-            const items = await list(workshopPath);
-            const logo = items.find(
-              (f) =>
-                !isFolder(f) && /^logo\./i.test(f.name) && imageFile(f.name),
+          const children = (await list(typePath)).filter(isFolder);
+          const collections = await parallel(children, async (child) => {
+            const childPath = typePath + "/" + child.name;
+            const category =
+              type === "BodyKit" ? "bodykits" : partCategory(child.name);
+            // New Admin Part/{Category}/{Manufacturer}/{Product}/{angle} layout.
+            if (type === "Part" && category !== "others") {
+              const workshops = (await list(childPath)).filter(isFolder);
+              const products = await parallel(workshops, (workshop) =>
+                workshopParts(
+                  childPath + "/" + workshop.name,
+                  workshop.name,
+                  car.id,
+                  category,
+                ),
+              );
+              return products.flat();
+            }
+            // Original flat files and BodyKit/{Manufacturer}/{Kit}/{angle} layout.
+            return workshopParts(
+              childPath,
+              child.name,
+              car.id,
+              type === "BodyKit" ? "bodykits" : undefined,
             );
-            return items
-              .filter(
-                (f) =>
-                  !isFolder(f) && imageFile(f.name) && !/^logo\./i.test(f.name),
-              )
-              .map((file) => {
-                const objectPath = workshopPath + "/" + file.name;
-                const name = label(file.name.replace(/\.[^.]+$/, ""));
-                return {
-                  id: identity("part", objectPath),
-                  storagePath: objectPath,
-                  carId: car.id,
-                  category:
-                    type === "BodyKit" ? "bodykits" : partCategory(name),
-                  name,
-                  finish: label(workshop.name),
-                  manufacturerLogo: logo
-                    ? url(workshopPath + "/" + logo.name, logo)
-                    : null,
-                  previewImage: url(objectPath, file),
-                  crop: "full",
-                  description: "",
-                };
-              });
           });
           parts.push(...collections.flat());
         }

@@ -136,3 +136,57 @@ test("uses BodyKit folder for full kits and categorizes separate parts without g
   assert.equal(partCategory("Unknown-Accessory"), "others");
   assert.equal(partCategory("Carbon-Ceramic-Rotors"), "brakes");
 });
+
+test("reads Admin multi-angle car and nested category/product folders without CarPicture", async () => {
+  const f = fixture();
+  const base = "Honda/Civic-FE";
+  f.tree[base] = [
+    file("45_front.jpg"),
+    file("front.png"),
+    file("45_Back.webp"),
+    file("Back.jpg"),
+    folder("BodyKit"),
+    folder("Part"),
+  ];
+  f.tree[base + "/BodyKit/Mugen"] = [file("logo.png"), folder("Aero-Kit")];
+  f.tree[base + "/BodyKit/Mugen/Aero-Kit"] = [
+    file("45_front.png"),
+    file("Back.png"),
+  ];
+  f.tree[base + "/Part"] = [folder("Rear-Bumper"), folder("Wheels")];
+  f.tree[base + "/Part/Rear-Bumper"] = [folder("Mugen")];
+  f.tree[base + "/Part/Rear-Bumper/Mugen"] = [folder("Custom-Rear")];
+  f.tree[base + "/Part/Rear-Bumper/Mugen/Custom-Rear"] = [
+    file("45_Back.png"),
+    file("Back.png"),
+  ];
+  f.tree[base + "/Part/Wheels"] = [folder("Enkei")];
+  f.tree[base + "/Part/Wheels/Enkei"] = [folder("RPF1")];
+  f.tree[base + "/Part/Wheels/Enkei/RPF1"] = [
+    file("45_front.png"),
+    file("45_Back.png"),
+  ];
+  const catalog = createStorageCatalog({ admin: f.admin });
+  const data = await catalog.get();
+  assert.equal(data.cars.length, 1);
+  assert.match(data.cars[0].image, /45_front\.jpg/);
+  assert.match(data.cars[0].views.rear45, /45_Back\.webp/);
+  assert.deepEqual(
+    data.parts.map((p) => p.category),
+    ["bodykits", "rear", "wheels"],
+  );
+  assert.equal(data.parts.length, 3); // One product, not one per camera angle.
+  assert.match(data.parts[1].previewImage, /45_Back\.png/);
+  assert.equal(data.parts[1].finish, "Mugen");
+  assert.equal(data.parts[1].name, "Custom Rear");
+  assert.match(data.parts[0].manufacturerLogo, /logo\.png/);
+  const legacyId = data.cars[0].id;
+  f.tree[base].push(file("CarPicture.png"));
+  assert.equal((await catalog.get(true)).cars[0].id, legacyId);
+  assert.ok(
+    payload(
+      { name: "Storage build", carId: legacyId, partIds: [data.parts[1].id] },
+      data,
+    ),
+  );
+});
