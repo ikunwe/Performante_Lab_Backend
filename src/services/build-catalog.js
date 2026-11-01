@@ -42,7 +42,9 @@ function readBuildAssets() {
     ),
   );
 }
-function resolveCar(id) {
+function resolveCar(id, assets) {
+  if (id.startsWith("storage-car:"))
+    return assets?.cars?.find((car) => car.id === id) || null;
   const demo = demos.find((car) => car.id === id);
   if (demo) return demo;
   for (const brand of dataset.brands) {
@@ -70,6 +72,8 @@ function resolveCar(id) {
   return null;
 }
 function partsFor(car, assets) {
+  if (car.storagePath)
+    return assets.parts.filter((part) => part.carId === car.id);
   if (!car.reference)
     return demoCategories.map((category, index) => ({
       id: car.id + "-" + index,
@@ -82,6 +86,7 @@ function partsFor(car, assets) {
   );
 }
 function coverImage(car, selected, assets) {
+  if (car.storagePath) return car.image;
   if (!car.reference) return car.image;
   const { brandId, modelName } = car.reference;
   const views = assets.views.filter(
