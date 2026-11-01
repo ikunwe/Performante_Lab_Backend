@@ -37,6 +37,9 @@ async function showcaseBuilds(admin, storage, data, owner) {
     author: authors.get(row.user_id) || "สมาชิก",
     car: row.car_name || "ยังไม่ระบุรุ่นรถ",
     carId: row.tag,
+    partIds: (Array.isArray(row.parts) ? row.parts : []).filter(
+      (id) => typeof id === "string",
+    ),
     category: row.category || "Street",
     image:
       catalog?.cars.find((car) => car.id === row.tag)?.image ||
@@ -47,6 +50,17 @@ async function showcaseBuilds(admin, storage, data, owner) {
     isOwn: row.user_id === owner,
     isPublic: row.is_public,
     createdAt: row.created_at,
+    partDetails: (Array.isArray(row.parts) ? row.parts : [])
+      .filter((id) => typeof id === "string")
+      .map((id) => ({
+        id,
+        name:
+          products.get(id)?.name ||
+          (/^(storage-part:|local-part:)/.test(id)
+            ? "พาร์ทที่ไม่มีในแค็ตตาล็อกปัจจุบัน"
+            : id),
+        category: products.get(id)?.category || null,
+      })),
     parts: (Array.isArray(row.parts) ? row.parts : [])
       .filter((id) => typeof id === "string")
       .map(

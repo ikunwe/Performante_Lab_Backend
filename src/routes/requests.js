@@ -12,13 +12,11 @@ const {
 } = require("../services/requests");
 
 function unavailable(res) {
-  return res
-    .status(503)
-    .json({
-      error: "REQUESTS_UNAVAILABLE",
-      message:
-        "ระบบคำขอไม่พร้อมใช้งาน กรุณาตรวจ migration และ Storage หรือลองใหม่",
-    });
+  return res.status(503).json({
+    error: "REQUESTS_UNAVAILABLE",
+    message:
+      "ระบบคำขอไม่พร้อมใช้งาน กรุณาตรวจ migration และ Storage หรือลองใหม่",
+  });
 }
 function requestList(admin, own) {
   return async (req, res) => {
@@ -28,7 +26,7 @@ function requestList(admin, own) {
       return res.status(400).json({ error: "INVALID_PAGE" });
     try {
       let query = admin.from("part_requests").select(columns);
-      if (own) query = query.eq("user_id", req.authUser.id);
+      if (own) query = query.eq("user_id", req.authUser.id).neq("status", "Cancelled");
       const { data, error } = await query
         .order("created_at", { ascending: false })
         .order("id", { ascending: false })
@@ -52,6 +50,52 @@ function requestsRoutes(supabase, { admin }) {
     next();
   });
   router.get("/", requestList(admin, true));
+  // Ownership and Pending are checked again in the write to prevent review races.
+  router.patch("/:id/cancel", async (req, res) => {
+    if (!UUID.test(req.params.id))
+      return res.status(400).json({ error: "INVALID_REQUEST_ID" });
+    try {
+      const existing = await admin
+        .from("part_requests")
+        .select(columns)
+        .eq("id", req.params.id)
+        .eq("user_id", req.authUser.id)
+        .maybeSingle();
+      if (existing.error) return unavailable(res);
+      if (!existing.data)
+        return res.status(404).json({ error: "REQUEST_NOT_FOUND" });
+      if (existing.data.status === "Cancelled")
+        return res.json({
+          request: (await requestDtos(admin, [existing.data]))[0],
+        });
+      if (existing.data.status !== "Pending")
+        return res
+          .status(409)
+          .json({
+            error: "REQUEST_NOT_PENDING",
+            message: "คำขอนี้ได้รับการพิจารณาแล้ว ไม่สามารถยกเลิกได้",
+          });
+      const { data, error } = await admin
+        .from("part_requests")
+        .update({ status: "Cancelled", updated_at: new Date().toISOString() })
+        .eq("id", req.params.id)
+        .eq("user_id", req.authUser.id)
+        .eq("status", "Pending")
+        .select(columns)
+        .maybeSingle();
+      if (error) return unavailable(res);
+      if (!data)
+        return res
+          .status(409)
+          .json({
+            error: "REQUEST_NOT_PENDING",
+            message: "สถานะคำขอเปลี่ยนแล้ว กรุณารีเฟรชรายการ",
+          });
+      return res.json({ request: (await requestDtos(admin, [data]))[0] });
+    } catch {
+      return unavailable(res);
+    }
+  });
   router.post(
     "/",
     rateLimit({
@@ -74,12 +118,10 @@ function requestsRoutes(supabase, { admin }) {
         if (existing.error) return unavailable(res);
         if (existing.data) {
           if (existing.data.submission_hash !== hash)
-            return res
-              .status(409)
-              .json({
-                error: "REQUEST_CONFLICT",
-                message: "รหัสคำขอนี้ถูกใช้แล้ว กรุณาสร้างคำขอใหม่",
-              });
+            return res.status(409).json({
+              error: "REQUEST_CONFLICT",
+              message: "รหัสคำขอนี้ถูกใช้แล้ว กรุณาสร้างคำขอใหม่",
+            });
           return res.json({
             request: (await requestDtos(admin, [existing.data]))[0],
           });
@@ -131,12 +173,10 @@ function requestsRoutes(supabase, { admin }) {
             return res.json({
               request: (await requestDtos(admin, [retry.data]))[0],
             });
-          return res
-            .status(409)
-            .json({
-              error: "REQUEST_CONFLICT",
-              message: "รหัสคำขอนี้ถูกใช้แล้ว",
-            });
+          return res.status(409).json({
+            error: "REQUEST_CONFLICT",
+            message: "รหัสคำขอนี้ถูกใช้แล้ว",
+          });
         }
         if (result.error || !result.data) return unavailable(res);
         return res
@@ -175,10 +215,17 @@ function adminRequestsRoutes({ admin }) {
           updated_at: new Date().toISOString(),
         })
         .eq("id", req.params.id)
+        .neq("status", "Cancelled")
         .select(columns)
         .maybeSingle();
       if (error) return unavailable(res);
-      if (!data) return res.status(404).json({ error: "REQUEST_NOT_FOUND" });
+      if (!data)
+        return res
+          .status(409)
+          .json({
+            error: "REQUEST_NOT_PENDING",
+            message: "คำขอนี้ไม่อยู่ระหว่างรอพิจารณาแล้ว กรุณารีเฟรชรายการ",
+          });
       return res.json({ request: (await requestDtos(admin, [data]))[0] });
     } catch {
       return unavailable(res);

@@ -48,6 +48,10 @@ async function setup(t) {
       this.filters.push((row) => row[key] === value);
       return this;
     }
+    neq(key, value) {
+      this.filters.push((row) => row[key] !== value);
+      return this;
+    }
     order() {
       return this;
     }
@@ -338,4 +342,41 @@ test("supports bounded pagination and exposes no fake records during database/St
   const res = await call("/api/requests");
   assert.equal(res.status, 503);
   assert.ok(!(await res.text()).includes("private-database-details"));
+});
+
+test('owners can cancel only their Pending requests, retries are safe and Admin cannot reopen a cancelled request', async t => {
+  const { call, rows, uploads } = await setup(t);
+  const data = submission();
+  await call('/api/requests', 'a', 'POST', form(data));
+  const cancel = '/api/requests/' + data.id + '/cancel';
+  assert.equal((await call(cancel, null, 'PATCH')).status, 401);
+  assert.equal((await call(cancel, 'inactive', 'PATCH')).status, 403);
+  assert.equal((await call(cancel, 'b', 'PATCH')).status, 404);
+  assert.equal((await call('/api/requests/bad/cancel', 'a', 'PATCH')).status, 400);
+  assert.equal(rows[0].status, 'Pending');
+  const result = await call(cancel, 'a', 'PATCH');
+  assert.equal(result.status, 200);
+  const cancelled = (await result.json()).request;
+  assert.equal(cancelled.status, 'Cancelled');
+  assert.deepEqual(cancelled.images, []);
+  assert.equal(rows.length, 1);
+  assert.equal(uploads.size, 1);
+  assert.equal((await call(cancel, 'a', 'PATCH')).status, 200);
+  assert.deepEqual((await (await call('/api/requests')).json()).requests, []);
+  assert.equal((await (await call('/api/admin/requests', 'admin')).json()).requests[0].status, 'Cancelled');
+  assert.equal((await call('/api/admin/requests/' + data.id + '/status', 'admin', 'PATCH', { status: 'Accepted' })).status, 409);
+  rows[0].status = 'Accepted';
+  assert.equal((await call(cancel, 'a', 'PATCH')).status, 409);
+  assert.equal(rows[0].status, 'Accepted');
+});
+
+test('cancellation errors do not report success or expose database internals', async t => {
+  const { call, rows, failDb } = await setup(t);
+  const data = submission();
+  await call('/api/requests', 'a', 'POST', form(data));
+  failDb();
+  const response = await call('/api/requests/' + data.id + '/cancel', 'a', 'PATCH');
+  assert.equal(response.status, 503);
+  assert.equal(rows[0].status, 'Pending');
+  assert.ok(!(await response.text()).includes('private-database-details'));
 });

@@ -1,5 +1,6 @@
 const { createHash } = require("node:crypto");
 const imageFile = (name) => /\.(png|jpe?g|webp|svg|avif)$/i.test(name);
+const maskFile = (name) => /\.(mask|layer)\./i.test(name);
 const isFolder = (item) => item.id === null;
 const label = (name) => name.replace(/[-_]+/g, " ").trim();
 const identity = (kind, path) =>
@@ -80,12 +81,12 @@ function createStorageCatalog({ admin, now = Date.now, ttlMs = 60000 }) {
       "45_back": "rear45",
       back: "rear",
     };
-    function views(files, path) {
+    function views(files, path, mode = '') {
       return Object.fromEntries(
         files
-          .filter((f) => !isFolder(f) && imageFile(f.name))
+          .filter((f) => !isFolder(f) && imageFile(f.name) && (mode ? f.name.toLowerCase().endsWith('.'+mode+'.png') : !maskFile(f.name)))
           .flatMap((f) => {
-            const angle = angles[f.name.replace(/\.[^.]+$/, "").toLowerCase()];
+            const angle = angles[f.name.replace(mode ? new RegExp('\\.'+mode+'\\.png$','i') : /\.[^.]+$/, "").toLowerCase()];
             return angle ? [[angle, url(path + "/" + f.name, f)]] : [];
           }),
       );
@@ -118,7 +119,7 @@ function createStorageCatalog({ admin, now = Date.now, ttlMs = 60000 }) {
       });
       const flat = items
         .filter(
-          (f) => !isFolder(f) && imageFile(f.name) && !/^logo\./i.test(f.name),
+          (f) => !isFolder(f) && imageFile(f.name) && !maskFile(f.name) && !/^logo\./i.test(f.name),
         )
         .map((f) =>
           makePart(
@@ -136,11 +137,21 @@ function createStorageCatalog({ admin, now = Date.now, ttlMs = 60000 }) {
           (() => {
             const f = files.find(
               (f) =>
-                !isFolder(f) && imageFile(f.name) && !/^logo\./i.test(f.name),
+                !isFolder(f) && imageFile(f.name) && !maskFile(f.name) && !/^logo\./i.test(f.name),
             );
             return f ? url(path + "/" + f.name, f) : null;
           })();
-        return preview ? makePart(path, item.name, preview, images) : null;
+        if (!preview) return null;
+        const masks = views(files, path, 'mask');
+        const layerViews = views(files, path, 'layer');
+        // The editor writes the aligned frame first and its mask last. Never mix
+        // a newly written frame with an older mask after an interrupted save.
+        for (const [filename, angle] of Object.entries(angles)) {
+          const photo = files.find(f => f.name.toLowerCase() === filename + '.layer.png');
+          const mask = files.find(f => f.name.toLowerCase() === filename + '.mask.png');
+          if (photo && mask && Date.parse(photo.updated_at || photo.created_at) > Date.parse(mask.updated_at || mask.created_at)) delete masks[angle];
+        }
+        return { ...makePart(path, item.name, preview, images), masks, layerViews };
       });
       return [...flat, ...nested.filter(Boolean)];
     }
