@@ -81,12 +81,29 @@ function createStorageCatalog({ admin, now = Date.now, ttlMs = 60000 }) {
       "45_back": "rear45",
       back: "rear",
     };
-    function views(files, path, mode = '') {
+    function views(files, path, mode = "") {
       return Object.fromEntries(
         files
-          .filter((f) => !isFolder(f) && imageFile(f.name) && (mode ? f.name.toLowerCase().endsWith('.'+mode+'.png') : !maskFile(f.name)))
+          .filter(
+            (f) =>
+              !isFolder(f) &&
+              imageFile(f.name) &&
+              (mode
+                ? f.name.toLowerCase().endsWith("." + mode + ".png")
+                : !maskFile(f.name)),
+          )
           .flatMap((f) => {
-            const angle = angles[f.name.replace(mode ? new RegExp('\\.'+mode+'\\.png$','i') : /\.[^.]+$/, "").toLowerCase()];
+            const angle =
+              angles[
+                f.name
+                  .replace(
+                    mode
+                      ? new RegExp("\\." + mode + "\\.png$", "i")
+                      : /\.[^.]+$/,
+                    "",
+                  )
+                  .toLowerCase()
+              ];
             return angle ? [[angle, url(path + "/" + f.name, f)]] : [];
           }),
       );
@@ -101,16 +118,29 @@ function createStorageCatalog({ admin, now = Date.now, ttlMs = 60000 }) {
       const logo = items.find(
         (f) => !isFolder(f) && /^logo\./i.test(f.name) && imageFile(f.name),
       );
-      const manufacturerLogo = logo
-        ? url(workshopPath + "/" + logo.name, logo)
-        : null;
+      let displayName = label(manufacturer),
+        placeholderLogo = false;
+      if (logo && typeof bucket.info === "function") {
+        const info = await withSlot(() =>
+          bucket.info(workshopPath + "/" + logo.name),
+        );
+        if (info.error) throw new Error("STORAGE_UNAVAILABLE");
+        const name = info.data?.metadata?.workshopDisplayName;
+        if (typeof name === "string" && name.trim() && name.length <= 100)
+          displayName = name.trim();
+        placeholderLogo = info.data?.metadata?.workshopPlaceholderLogo === true;
+      }
+      const manufacturerLogo =
+        logo && !placeholderLogo
+          ? url(workshopPath + "/" + logo.name, logo)
+          : null;
       const makePart = (path, name, previewImage, images) => ({
         id: identity("part", path),
         storagePath: path,
         carId,
         category: category || partCategory(name),
         name: label(name),
-        finish: label(manufacturer),
+        finish: displayName,
         manufacturerLogo,
         previewImage,
         ...(images ? { views: images } : {}),
@@ -119,7 +149,11 @@ function createStorageCatalog({ admin, now = Date.now, ttlMs = 60000 }) {
       });
       const flat = items
         .filter(
-          (f) => !isFolder(f) && imageFile(f.name) && !maskFile(f.name) && !/^logo\./i.test(f.name),
+          (f) =>
+            !isFolder(f) &&
+            imageFile(f.name) &&
+            !maskFile(f.name) &&
+            !/^logo\./i.test(f.name),
         )
         .map((f) =>
           makePart(
@@ -137,21 +171,38 @@ function createStorageCatalog({ admin, now = Date.now, ttlMs = 60000 }) {
           (() => {
             const f = files.find(
               (f) =>
-                !isFolder(f) && imageFile(f.name) && !maskFile(f.name) && !/^logo\./i.test(f.name),
+                !isFolder(f) &&
+                imageFile(f.name) &&
+                !maskFile(f.name) &&
+                !/^logo\./i.test(f.name),
             );
             return f ? url(path + "/" + f.name, f) : null;
           })();
         if (!preview) return null;
-        const masks = views(files, path, 'mask');
-        const layerViews = views(files, path, 'layer');
+        const masks = views(files, path, "mask");
+        const layerViews = views(files, path, "layer");
         // The editor writes the aligned frame first and its mask last. Never mix
         // a newly written frame with an older mask after an interrupted save.
         for (const [filename, angle] of Object.entries(angles)) {
-          const photo = files.find(f => f.name.toLowerCase() === filename + '.layer.png');
-          const mask = files.find(f => f.name.toLowerCase() === filename + '.mask.png');
-          if (photo && mask && Date.parse(photo.updated_at || photo.created_at) > Date.parse(mask.updated_at || mask.created_at)) delete masks[angle];
+          const photo = files.find(
+            (f) => f.name.toLowerCase() === filename + ".layer.png",
+          );
+          const mask = files.find(
+            (f) => f.name.toLowerCase() === filename + ".mask.png",
+          );
+          if (
+            photo &&
+            mask &&
+            Date.parse(photo.updated_at || photo.created_at) >
+              Date.parse(mask.updated_at || mask.created_at)
+          )
+            delete masks[angle];
         }
-        return { ...makePart(path, item.name, preview, images), masks, layerViews };
+        return {
+          ...makePart(path, item.name, preview, images),
+          masks,
+          layerViews,
+        };
       });
       return [...flat, ...nested.filter(Boolean)];
     }
@@ -162,6 +213,16 @@ function createStorageCatalog({ admin, now = Date.now, ttlMs = 60000 }) {
         (f) =>
           !isFolder(f) && /^logo\.(png|jpe?g|svg|webp|avif)$/i.test(f.name),
       );
+      let displayName = label(root.name);
+      if (logo && typeof bucket.info === "function") {
+        const info = await withSlot(() =>
+          bucket.info(root.name + "/" + logo.name),
+        );
+        if (info.error) throw new Error("STORAGE_UNAVAILABLE");
+        const name = info.data?.metadata?.brandDisplayName;
+        if (typeof name === "string" && name.trim() && name.length <= 100)
+          displayName = name.trim();
+      }
       const models = await parallel(files.filter(isFolder), async (model) => {
         const path = root.name + "/" + model.name;
         const modelFiles = await list(path);
@@ -179,8 +240,8 @@ function createStorageCatalog({ admin, now = Date.now, ttlMs = 60000 }) {
         const car = {
           id: identity("car", path),
           storagePath: path,
-          brand: label(root.name),
-          name: label(root.name) + " " + label(model.name),
+          brand: displayName,
+          name: displayName + " " + label(model.name),
           modelName: label(model.name),
           image: cover,
           views: images,
@@ -225,9 +286,9 @@ function createStorageCatalog({ admin, now = Date.now, ttlMs = 60000 }) {
       return {
         brand: {
           id: root.name,
-          name: label(root.name),
+          name: displayName,
           slug: root.name,
-          aliases: [],
+          aliases: displayName === label(root.name) ? [] : [label(root.name)],
           logoUrl: logo ? url(root.name + "/" + logo.name, logo) : null,
         },
         models: valid,

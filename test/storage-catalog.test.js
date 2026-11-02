@@ -211,3 +211,32 @@ test('reads versioned alpha-mask metadata without making masks into catalog prod
   const next = await createStorageCatalog({admin:f.admin}).get();
   assert.equal(next.parts.length,3);
 });
+
+test('logo metadata changes brand labels without changing saved car/part IDs or Storage paths', async () => {
+  const f=fixture();
+  const original=await createStorageCatalog({admin:f.admin}).get();
+  const from=f.admin.storage.from.bind(f.admin.storage);
+  f.admin.storage.from=(bucket)=>({...from(bucket),info:async()=>({data:{metadata:{brandDisplayName:'Honda Thailand'}},error:null})});
+  const renamed=await createStorageCatalog({admin:f.admin}).get();
+  assert.equal(renamed.brands[0].name,'Honda Thailand');
+  assert.equal(renamed.brands[0].id,'Honda');
+  assert.deepEqual(renamed.brands[0].aliases,['Honda']);
+  assert.equal(renamed.cars[0].brand,'Honda Thailand');
+  assert.equal(renamed.cars[0].storagePath,original.cars[0].storagePath);
+  assert.deepEqual(renamed.cars.map(c=>c.id),original.cars.map(c=>c.id));
+  assert.deepEqual(renamed.parts.map(p=>p.id),original.parts.map(p=>p.id));
+});
+
+test('workshop display names change only labels and preserve existing part IDs and paths', async () => {
+  const f=fixture();
+  const before=await createStorageCatalog({admin:f.admin}).get();
+  const from=f.admin.storage.from.bind(f.admin.storage);
+  f.admin.storage.from=bucket=>({...from(bucket),info:async path=>({data:{metadata:path==='Honda/Civic-FE/BodyKit/Mugen/logo.png' ? {workshopDisplayName:'Mugen Japan',workshopPlaceholderLogo:true} : {}},error:null})});
+  const after=await createStorageCatalog({admin:f.admin}).get();
+  assert.deepEqual(after.parts.map(p=>p.id),before.parts.map(p=>p.id));
+  assert.deepEqual(after.parts.map(p=>p.storagePath),before.parts.map(p=>p.storagePath));
+  const renamed=after.parts.find(p=>p.storagePath.includes('/BodyKit/Mugen/'));
+  assert.equal(renamed.finish,'Mugen Japan');
+  assert.equal(renamed.manufacturerLogo,null);
+  assert.ok(after.parts.filter(p=>p.storagePath.includes('/Part/')).every(p=>p.finish==='Enkei'));
+});

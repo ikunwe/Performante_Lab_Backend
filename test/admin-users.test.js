@@ -41,6 +41,12 @@ function createMockBackend({
           return { data: p ? { ...p } : null, error: null };
         },
       }),
+      order: () => ({
+        range: async (start, end) => ({
+          data: Array.from(profilesMap.values()).slice(start, end + 1),
+          error: null,
+        }),
+      }),
     }),
     update: (updates) => ({
       eq: async (_field, id) => {
@@ -95,6 +101,27 @@ function createMockBackend({
 
   const admin = {
     ...supabase,
+    auth: {
+      ...supabase.auth,
+      admin: {
+        listUsers: async ({ page, perPage }) => ({
+          data: {
+            users: Array.from(profilesMap.values())
+              .slice((page - 1) * perPage, page * perPage)
+              .map((p) => ({
+                id: p.id,
+                email: p.email,
+                created_at: p.joined_at,
+                user_metadata: {
+                  avatar_url: "https://example.com/avatar.png",
+                  role: "SuperAdmin",
+                },
+              })),
+          },
+          error: null,
+        }),
+      },
+    },
     from: (table) => {
       assert.equal(table, "profiles");
       return queryHandler;
@@ -477,4 +504,95 @@ test("Admin endpoints reject invalid UUIDs or payloads (400 INVALID_REQUEST)", a
     },
   );
   assert.equal(resBadRole.status, 400);
+});
+
+test("GET users rejects missing credentials, inactive Admins and never invokes privileged listing for a User", async (t) => {
+  for (const actor of [
+    {
+      id: "11111111-1111-4111-8111-111111111111",
+      role: "Admin",
+      status: "InActive",
+    },
+    {
+      id: "11111111-1111-4111-8111-111111111111",
+      role: "User",
+      status: "Active",
+    },
+  ]) {
+    const mock = createMockBackend({ actor });
+    let calls = 0;
+    mock.admin.auth.admin.listUsers = async () => {
+      calls++;
+      throw new Error("must not run");
+    };
+    const base = await serveApp(t, mock);
+    assert.equal((await fetch(base + "/api/admin/users")).status, 401);
+    assert.equal(
+      (
+        await fetch(base + "/api/admin/users", {
+          headers: { Authorization: "Bearer invalid" },
+        })
+      ).status,
+      401,
+    );
+    assert.equal(
+      (
+        await fetch(base + "/api/admin/users", {
+          headers: { Authorization: "Bearer valid-token" },
+        })
+      ).status,
+      403,
+    );
+    assert.equal(calls, 0);
+  }
+});
+
+test("GET users supports SuperAdmin without calling the forbidden RPC and only returns allowed fields", async (t) => {
+  const mock = createMockBackend({
+    actor: {
+      id: "11111111-1111-4111-8111-111111111111",
+      role: "SuperAdmin",
+      status: "Active",
+      email: "admin@example.com",
+    },
+  });
+  mock.admin.rpc = async () => {
+    throw new Error("RPC must not be used");
+  };
+  const base = await serveApp(t, mock);
+  const response = await fetch(base + "/api/admin/users", {
+    headers: { Authorization: "Bearer valid-token" },
+  });
+  assert.equal(response.status, 200);
+  const { users } = await response.json();
+  assert.equal(users[0].avatarUrl, "https://example.com/avatar.png");
+  assert.deepEqual(
+    Object.keys(users[0]).sort(),
+    [
+      "id",
+      "username",
+      "email",
+      "role",
+      "status",
+      "joinedAt",
+      "avatarUrl",
+    ].sort(),
+  );
+});
+
+test("GET users reports Auth API failure without returning partial data or sensitive details", async (t) => {
+  const mock = createMockBackend();
+  mock.admin.auth.admin.listUsers = async () => ({
+    data: null,
+    error: { message: "private upstream details" },
+  });
+  const base = await serveApp(t, mock);
+  const response = await fetch(base + "/api/admin/users", {
+    headers: { Authorization: "Bearer valid-token" },
+  });
+  assert.equal(response.status, 503);
+  const body = await response.json();
+  assert.equal(body.error, "USERS_UNAVAILABLE");
+  assert.ok(!JSON.stringify(body).includes("private upstream details"));
+  assert.ok(!body.users);
 });

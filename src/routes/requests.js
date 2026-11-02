@@ -25,8 +25,8 @@ function requestList(admin, own) {
     if (!Number.isInteger(offset) || offset < 0 || offset > 10000)
       return res.status(400).json({ error: "INVALID_PAGE" });
     try {
-      let query = admin.from("part_requests").select(columns);
-      if (own) query = query.eq("user_id", req.authUser.id).neq("status", "Cancelled");
+      let query = admin.from("part_requests").select(columns).neq("status", "Cancelled");
+      if (own) query = query.eq("user_id", req.authUser.id);
       const { data, error } = await query
         .order("created_at", { ascending: false })
         .order("id", { ascending: false })
