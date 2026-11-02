@@ -191,52 +191,147 @@ test("reads Admin multi-angle car and nested category/product folders without Ca
   );
 });
 
-test('reads versioned alpha-mask metadata without making masks into catalog products or covers', async () => {
+test("reads versioned alpha-mask metadata without making masks into catalog products or covers", async () => {
   const f = fixture();
-  f.tree['Honda/Civic-FE/Part/Enkei'].push(folder('Wheel-New'), file('front.mask.png'));
-  f.tree['Honda/Civic-FE/Part/Enkei/Wheel-New'] = [file('45_front.mask.png'),file('45_front.layer.png'),file('45_front.png'),file('45_Back.mask.png'),file('45_Back.jpg')];
-  const data = await createStorageCatalog({admin:f.admin}).get();
+  f.tree["Honda/Civic-FE/Part/Enkei"].push(
+    folder("Wheel-New"),
+    file("front.mask.png"),
+  );
+  f.tree["Honda/Civic-FE/Part/Enkei/Wheel-New"] = [
+    file("45_front.mask.png"),
+    file("45_front.layer.png"),
+    file("45_front.png"),
+    file("45_Back.mask.png"),
+    file("45_Back.jpg"),
+  ];
+  const data = await createStorageCatalog({ admin: f.admin }).get();
   assert.equal(data.parts.length, 4);
-  const wheel = data.parts.find(p=>p.name==='Wheel New');
-  assert.ok(wheel.views.front45.includes('/45_front.png?v='));
-  assert.ok(wheel.masks.front45.includes('/45_front.mask.png?v='));
-  assert.ok(wheel.layerViews.front45.includes('/45_front.layer.png?v='));
-  assert.ok(wheel.masks.rear45.includes('/45_Back.mask.png?v='));
-  assert.ok(!wheel.previewImage.includes('.mask.'));
-  f.tree['Honda/Civic-FE/Part/Enkei/Wheel-New'].find(f=>f.name==='45_front.layer.png').updated_at='2026-11-02T00:00:00Z';
-  const interrupted = await createStorageCatalog({admin:f.admin}).get();
-  assert.equal(interrupted.parts.find(p=>p.name==='Wheel New').masks.front45, undefined);
+  const wheel = data.parts.find((p) => p.name === "Wheel New");
+  assert.ok(wheel.views.front45.includes("/45_front.png?v="));
+  assert.ok(wheel.masks.front45.includes("/45_front.mask.png?v="));
+  assert.ok(wheel.layerViews.front45.includes("/45_front.layer.png?v="));
+  assert.ok(wheel.masks.rear45.includes("/45_Back.mask.png?v="));
+  assert.ok(!wheel.previewImage.includes(".mask."));
+  f.tree["Honda/Civic-FE/Part/Enkei/Wheel-New"].find(
+    (f) => f.name === "45_front.layer.png",
+  ).updated_at = "2026-11-02T00:00:00Z";
+  const interrupted = await createStorageCatalog({ admin: f.admin }).get();
+  assert.equal(
+    interrupted.parts.find((p) => p.name === "Wheel New").masks.front45,
+    undefined,
+  );
 
-  f.tree['Honda/Civic-FE/Part/Enkei/Wheel-New'] = [file('45_front.mask.png'),file('45_front.layer.png')];
-  const next = await createStorageCatalog({admin:f.admin}).get();
-  assert.equal(next.parts.length,3);
+  f.tree["Honda/Civic-FE/Part/Enkei/Wheel-New"] = [
+    file("45_front.mask.png"),
+    file("45_front.layer.png"),
+  ];
+  const next = await createStorageCatalog({ admin: f.admin }).get();
+  assert.equal(next.parts.length, 3);
 });
 
-test('logo metadata changes brand labels without changing saved car/part IDs or Storage paths', async () => {
-  const f=fixture();
-  const original=await createStorageCatalog({admin:f.admin}).get();
-  const from=f.admin.storage.from.bind(f.admin.storage);
-  f.admin.storage.from=(bucket)=>({...from(bucket),info:async()=>({data:{metadata:{brandDisplayName:'Honda Thailand'}},error:null})});
-  const renamed=await createStorageCatalog({admin:f.admin}).get();
-  assert.equal(renamed.brands[0].name,'Honda Thailand');
-  assert.equal(renamed.brands[0].id,'Honda');
-  assert.deepEqual(renamed.brands[0].aliases,['Honda']);
-  assert.equal(renamed.cars[0].brand,'Honda Thailand');
-  assert.equal(renamed.cars[0].storagePath,original.cars[0].storagePath);
-  assert.deepEqual(renamed.cars.map(c=>c.id),original.cars.map(c=>c.id));
-  assert.deepEqual(renamed.parts.map(p=>p.id),original.parts.map(p=>p.id));
+test("logo metadata changes brand labels without changing saved car/part IDs or Storage paths", async () => {
+  const f = fixture();
+  const original = await createStorageCatalog({ admin: f.admin }).get();
+  const from = f.admin.storage.from.bind(f.admin.storage);
+  f.admin.storage.from = (bucket) => ({
+    ...from(bucket),
+    info: async () => ({
+      data: { metadata: { brandDisplayName: "Honda Thailand" } },
+      error: null,
+    }),
+  });
+  const renamed = await createStorageCatalog({ admin: f.admin }).get();
+  assert.equal(renamed.brands[0].name, "Honda Thailand");
+  assert.equal(renamed.brands[0].id, "Honda");
+  assert.deepEqual(renamed.brands[0].aliases, ["Honda"]);
+  assert.equal(renamed.cars[0].brand, "Honda Thailand");
+  assert.equal(renamed.cars[0].storagePath, original.cars[0].storagePath);
+  assert.deepEqual(
+    renamed.cars.map((c) => c.id),
+    original.cars.map((c) => c.id),
+  );
+  assert.deepEqual(
+    renamed.parts.map((p) => p.id),
+    original.parts.map((p) => p.id),
+  );
 });
 
-test('workshop display names change only labels and preserve existing part IDs and paths', async () => {
-  const f=fixture();
-  const before=await createStorageCatalog({admin:f.admin}).get();
-  const from=f.admin.storage.from.bind(f.admin.storage);
-  f.admin.storage.from=bucket=>({...from(bucket),info:async path=>({data:{metadata:path==='Honda/Civic-FE/BodyKit/Mugen/logo.png' ? {workshopDisplayName:'Mugen Japan',workshopPlaceholderLogo:true} : {}},error:null})});
-  const after=await createStorageCatalog({admin:f.admin}).get();
-  assert.deepEqual(after.parts.map(p=>p.id),before.parts.map(p=>p.id));
-  assert.deepEqual(after.parts.map(p=>p.storagePath),before.parts.map(p=>p.storagePath));
-  const renamed=after.parts.find(p=>p.storagePath.includes('/BodyKit/Mugen/'));
-  assert.equal(renamed.finish,'Mugen Japan');
-  assert.equal(renamed.manufacturerLogo,null);
-  assert.ok(after.parts.filter(p=>p.storagePath.includes('/Part/')).every(p=>p.finish==='Enkei'));
+test("workshop display names change only labels and preserve existing part IDs and paths", async () => {
+  const f = fixture();
+  const before = await createStorageCatalog({ admin: f.admin }).get();
+  const from = f.admin.storage.from.bind(f.admin.storage);
+  f.admin.storage.from = (bucket) => ({
+    ...from(bucket),
+    info: async (path) => ({
+      data: {
+        metadata:
+          path === "Honda/Civic-FE/BodyKit/Mugen/logo.png"
+            ? {
+                workshopDisplayName: "Mugen Japan",
+                workshopPlaceholderLogo: true,
+              }
+            : {},
+      },
+      error: null,
+    }),
+  });
+  const after = await createStorageCatalog({ admin: f.admin }).get();
+  assert.deepEqual(
+    after.parts.map((p) => p.id),
+    before.parts.map((p) => p.id),
+  );
+  assert.deepEqual(
+    after.parts.map((p) => p.storagePath),
+    before.parts.map((p) => p.storagePath),
+  );
+  const renamed = after.parts.find((p) =>
+    p.storagePath.includes("/BodyKit/Mugen/"),
+  );
+  assert.equal(renamed.finish, "Mugen Japan");
+  assert.equal(renamed.manufacturerLogo, null);
+  assert.ok(
+    after.parts
+      .filter((p) => p.storagePath.includes("/Part/"))
+      .every((p) => p.finish === "Enkei"),
+  );
+});
+
+test("reads per-foundation placement pairs without mixing angles or exposing derived images as products", async () => {
+  const f = fixture(),
+    id = "a".repeat(32),
+    key = "storage-part:" + id;
+  const path = "Honda/Civic-FE/Part/Enkei/Wheel-New";
+  f.tree["Honda/Civic-FE/Part/Enkei"].push(folder("Wheel-New"));
+  f.tree[path] = [
+    file("45_front.png"),
+    file("45_front.mask.png"),
+    file("45_front.layer.png"),
+    file("45_front.on-" + id + ".mask.png"),
+    file("45_front.on-" + id + ".layer.png"),
+    file("45_Back.on-" + id + ".mask.png"),
+    file("45_Back.on-" + id + ".layer.png"),
+  ];
+  const catalog = await createStorageCatalog({ admin: f.admin }).get();
+  const wheel = catalog.parts.find((p) => p.name === "Wheel New");
+  assert.equal(catalog.parts.length, 4);
+  assert.ok(wheel.views.front45.includes("/45_front.png?"));
+  assert.ok(
+    wheel.placementVariants[key].masks.front45.includes(
+      "45_front.on-" + id + ".mask.png?",
+    ),
+  );
+  assert.ok(
+    wheel.placementVariants[key].layerViews.rear45.includes(
+      "45_Back.on-" + id + ".layer.png?",
+    ),
+  );
+  assert.ok(wheel.masks.front45.includes("/45_front.mask.png?"));
+  f.tree[path].find(
+    (p) => p.name === "45_front.on-" + id + ".layer.png",
+  ).updated_at = "2026-11-02T00:00:00Z";
+  const changed = (
+    await createStorageCatalog({ admin: f.admin }).get()
+  ).parts.find((p) => p.name === "Wheel New");
+  assert.equal(changed.placementVariants[key].masks.front45, undefined);
+  assert.ok(changed.placementVariants[key].masks.rear45);
 });

@@ -198,10 +198,42 @@ function createStorageCatalog({ admin, now = Date.now, ttlMs = 60000 }) {
           )
             delete masks[angle];
         }
+        // A wheel/wing can have independently calibrated frames for each bumper foundation.
+        const placementVariants = {};
+        for (const f of files) {
+          const match =
+            /^(45_front|front|45_back|back)\.on-([a-f0-9]{32})\.mask\.png$/i.exec(
+              f.name,
+            );
+          if (!match || isFolder(f)) continue;
+          const photo = files.find(
+            (p) =>
+              p.name.toLowerCase() ===
+              f.name.toLowerCase().replace(/\.mask\.png$/, ".layer.png"),
+          );
+          if (
+            !photo ||
+            isFolder(photo) ||
+            Date.parse(photo.updated_at || photo.created_at) >
+              Date.parse(f.updated_at || f.created_at)
+          )
+            continue;
+          const key = "storage-part:" + match[2].toLowerCase(),
+            angle = angles[match[1].toLowerCase()];
+          placementVariants[key] ??= { masks: {}, layerViews: {} };
+          placementVariants[key].masks[angle] = url(path + "/" + f.name, f);
+          placementVariants[key].layerViews[angle] = url(
+            path + "/" + photo.name,
+            photo,
+          );
+        }
         return {
           ...makePart(path, item.name, preview, images),
           masks,
           layerViews,
+          ...(Object.keys(placementVariants).length
+            ? { placementVariants }
+            : {}),
         };
       });
       return [...flat, ...nested.filter(Boolean)];
