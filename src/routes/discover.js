@@ -36,7 +36,7 @@ function discoverRoutes(supabase, { admin } = {}) {
         .order("id", { ascending: false })
         .range(offset, offset + 99);
       if (error || !Array.isArray(data)) throw new Error("database");
-      const builds = await showcaseBuilds(admin, storage, data, owner);
+      const builds = await showcaseBuilds(admin, storage, data, owner, { includeAuthorAvatar: true });
       return res.json({
         builds,
         nextOffset:

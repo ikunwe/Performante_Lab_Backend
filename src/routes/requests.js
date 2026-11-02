@@ -33,7 +33,7 @@ function requestList(admin, own) {
         .range(offset, offset + 99);
       if (error || !Array.isArray(data)) return unavailable(res);
       return res.json({
-        requests: await requestDtos(admin, data),
+        requests: await requestDtos(admin, data, { includeAuthorAvatar: !own }),
         nextOffset:
           data.length === 100 && offset + 100 <= 10000 ? offset + 100 : null,
       });
@@ -226,7 +226,7 @@ function adminRequestsRoutes({ admin }) {
             error: "REQUEST_NOT_PENDING",
             message: "คำขอนี้ไม่อยู่ระหว่างรอพิจารณาแล้ว กรุณารีเฟรชรายการ",
           });
-      return res.json({ request: (await requestDtos(admin, [data]))[0] });
+      return res.json({ request: (await requestDtos(admin, [data], { includeAuthorAvatar: true }))[0] });
     } catch {
       return unavailable(res);
     }

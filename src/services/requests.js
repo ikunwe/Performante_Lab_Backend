@@ -1,3 +1,4 @@
+const { authorAvatars } = require("./author-avatars");
 const { createHash } = require("node:crypto");
 const BUCKET = "request-attachments";
 const UUID =
@@ -116,7 +117,8 @@ async function parseSubmission(req) {
     .digest("hex");
   return { data, images, hash };
 }
-async function requestDtos(admin, rows) {
+async function requestDtos(admin, rows, { includeAuthorAvatar = false } = {}) {
+  const avatars = includeAuthorAvatar ? await authorAvatars(admin, rows.map(row => row.user_id)) : new Map();
   const paths = [
     ...new Set(
       rows.flatMap((row) =>
@@ -156,6 +158,7 @@ async function requestDtos(admin, rows) {
     manufacturer: row.request_details?.manufacturer || "",
     source: row.request_details?.source || "",
     author: row.profiles?.username || "สมาชิก",
+    ...(includeAuthorAvatar ? { authorAvatar: avatars.get(row.user_id) || "" } : {}),
     images: (row.status === "Cancelled" ? [] : row.image_paths || []).flatMap((path) =>
       signed.has(path) ? [signed.get(path)] : [],
     ),

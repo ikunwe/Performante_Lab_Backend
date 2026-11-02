@@ -1,7 +1,9 @@
+const { authorAvatars } = require("./author-avatars");
 const showcaseColumns =
   "id,user_id,title,car_name,tag,image_url,parts,budget,category,likes,is_public,created_at";
-async function showcaseBuilds(admin, storage, data, owner) {
+async function showcaseBuilds(admin, storage, data, owner, { includeAuthorAvatar = false } = {}) {
   const authors = new Map();
+  const avatars = includeAuthorAvatar ? await authorAvatars(admin, data.map(row => row.user_id)) : new Map();
   if (data.length) {
     const profiles = await admin
       .from("profiles")
@@ -35,6 +37,7 @@ async function showcaseBuilds(admin, storage, data, owner) {
     id: row.id,
     title: row.title || "Untitled Build",
     author: authors.get(row.user_id) || "สมาชิก",
+    ...(includeAuthorAvatar ? { authorAvatar: avatars.get(row.user_id) || "" } : {}),
     car: row.car_name || "ยังไม่ระบุรุ่นรถ",
     carId: row.tag,
     partIds: (Array.isArray(row.parts) ? row.parts : []).filter(
