@@ -1,4 +1,5 @@
 const { Router } = require("express");
+const { listAdminUsers } = require("../services/admin-users");
 const { requireAuth } = require("../middleware/require-auth");
 const {
   requireActive,
@@ -46,43 +47,18 @@ function adminRoutes(arg1, arg2) {
     requireAdmin(supabase, { admin }),
     async (_req, res) => {
       res.set("Cache-Control", "no-store");
-      const client = admin || supabase;
-      if (!client) {
+      if (!admin?.auth?.admin?.listUsers) {
         return res.status(503).json({
           error: "DATABASE_UNAVAILABLE",
           message: "ระบบฐานข้อมูลไม่พร้อมใช้งาน",
         });
       }
-
       try {
-        let users = [];
-        if (typeof client.rpc === "function") {
-          const { data, error } = await client.rpc("admin_list_users");
-          if (error) throw error;
-          users = data || [];
-        } else if (typeof client.from === "function") {
-          const { data, error } = await client
-            .from("profiles")
-            .select("id, username, role, status, updated_at");
-          if (error) throw error;
-          users = data || [];
-        }
-
-        const mapped = users.map((u) => ({
-          id: u.id,
-          username: u.username,
-          email: u.email || null,
-          role: u.role || "User",
-          status: u.status || "Active",
-          joinedAt:
-            u.joined_at || u.joinedAt || u.created_at || u.updated_at || null,
-        }));
-
-        return res.json({ users: mapped });
+        return res.json({ users: await listAdminUsers(admin) });
       } catch {
-        return res.status(500).json({
-          error: "INTERNAL_ERROR",
-          message: "ไม่สามารถดึงข้อมูลผู้ใช้ได้",
+        return res.status(503).json({
+          error: "USERS_UNAVAILABLE",
+          message: "ไม่สามารถดึงข้อมูลผู้ใช้ได้ กรุณาลองใหม่",
         });
       }
     },

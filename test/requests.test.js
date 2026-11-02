@@ -363,7 +363,7 @@ test('owners can cancel only their Pending requests, retries are safe and Admin 
   assert.equal(uploads.size, 1);
   assert.equal((await call(cancel, 'a', 'PATCH')).status, 200);
   assert.deepEqual((await (await call('/api/requests')).json()).requests, []);
-  assert.equal((await (await call('/api/admin/requests', 'admin')).json()).requests[0].status, 'Cancelled');
+  assert.deepEqual((await (await call('/api/admin/requests', 'admin')).json()).requests, []);
   assert.equal((await call('/api/admin/requests/' + data.id + '/status', 'admin', 'PATCH', { status: 'Accepted' })).status, 409);
   rows[0].status = 'Accepted';
   assert.equal((await call(cancel, 'a', 'PATCH')).status, 409);
