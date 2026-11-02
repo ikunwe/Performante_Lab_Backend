@@ -51,7 +51,7 @@ function likesRoutes(supabase, { admin }) {
       if (error || !Array.isArray(data)) return unavailable(res);
       const rows = data.map((row) => row.builds);
       return res.json({
-        builds: await showcaseBuilds(admin, storage, rows, req.authUser.id),
+        builds: await showcaseBuilds(admin, storage, rows, req.authUser.id, { includeAuthorAvatar: true }),
         nextOffset:
           data.length === 100 && offset + 100 <= 10000 ? offset + 100 : null,
       });

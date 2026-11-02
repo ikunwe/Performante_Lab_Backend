@@ -14,7 +14,7 @@ function adminBuildsRoutes({admin}) {
       const {data,error}=await admin.from('builds').select(showcaseColumns).eq('is_deleted',false)
         .order('created_at',{ascending:false}).order('id',{ascending:false}).range(offset,offset+99);
       if(error||!Array.isArray(data))return unavailable(res);
-      return res.json({builds:await showcaseBuilds(admin,storage,data,req.authUser.id),nextOffset:data.length===100&&offset+100<=10000?offset+100:null});
+      return res.json({builds:await showcaseBuilds(admin,storage,data,req.authUser.id,{includeAuthorAvatar:true}),nextOffset:data.length===100&&offset+100<=10000?offset+100:null});
     }catch{return unavailable(res);}
   });
   router.delete('/:id',async(req,res)=>{

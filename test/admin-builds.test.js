@@ -24,7 +24,7 @@ async function setup(t){
     range(start,end){this.window=[start,end];return Promise.resolve(this.result());}
     then(resolve,reject){return Promise.resolve(this.result()).then(resolve,reject);}
   }
-  const ids={admin:A,user:U,inactive:I},admin={from:table=>new Query(table)};
+  const ids={admin:A,user:U,inactive:I},admin={from:table=>new Query(table),auth:{admin:{getUserById:async id=>({data:{user:{id,user_metadata:{avatar_url:'https://test/driver.png'}}}})}}};
   const supabase={auth:{getUser:async token=>ids[token]?{data:{user:{id:ids[token]}},error:null}:{data:null,error:{status:401}}}};
   const server=await new Promise(resolve=>{const s=createApp({admin,supabase}).listen(0,'127.0.0.1',()=>resolve(s));});t.after(()=>new Promise(resolve=>server.close(resolve)));
   const base='http://127.0.0.1:'+server.address().port+'/api/admin/builds';
@@ -33,7 +33,7 @@ async function setup(t){
 test('Admin Discover reads real public/private builds and never substitutes examples',async t=>{
   const {rows,call}=await setup(t);const response=await call();assert.equal(response.status,200);assert.equal(response.headers.get('cache-control'),'no-store');
   const data=await response.json();assert.deepEqual(data.builds.map(b=>b.id),rows.slice(0,2).map(b=>b.id));
-  assert.equal(data.builds[0].author,'Driver');assert.equal(data.builds[0].image,'https://test/real-car.png');assert.equal(data.builds[1].isPublic,false);assert.equal(data.builds[0].likes,3);
+  assert.equal(data.builds[0].author,'Driver');assert.equal(data.builds[0].authorAvatar,'https://test/driver.png');assert.equal(data.builds[0].image,'https://test/real-car.png');assert.equal(data.builds[1].isPublic,false);assert.equal(data.builds[0].likes,3);
   rows.splice(0);assert.deepEqual((await (await call()).json()).builds,[]);
 });
 test('Admin build APIs reject User/anonymous/suspended accounts and soft-delete only after authorization',async t=>{

@@ -47,3 +47,23 @@ test("showcase preserves saved part IDs separately from labels for public, liked
   );
   assert.deepEqual(legacy.partIds, []);
 });
+
+test("admin avatars are resolved once per author without exposing Auth records", async () => {
+  const calls = [];
+  const admin = {
+    from: () => ({select: () => ({in: async () => ({data: [{id: "owner", username: "Driver"}]})})}),
+    auth: {admin: {getUserById: async (id) => {
+      calls.push(id);
+      if (id === "missing") throw new Error("unavailable");
+      return {data: {user: {email: "private@example.test", user_metadata: {picture: "https://test/avatar.png", secret: "hidden"}}}};
+    }}}
+  };
+  const rows = ["owner", "owner", "missing"].map((user_id, i) => ({id: String(i), user_id, parts: []}));
+  const builds = await showcaseBuilds(admin, {}, rows, "viewer", {includeAuthorAvatar: true});
+  assert.deepEqual(calls, ["owner", "missing"]);
+  assert.equal(builds[0].authorAvatar, "https://test/avatar.png");
+  assert.equal(builds[1].authorAvatar, builds[0].authorAvatar);
+  assert.equal(builds[2].authorAvatar, "");
+  assert.ok(!JSON.stringify(builds).includes("private@example.test"));
+  assert.ok(!JSON.stringify(builds).includes("hidden"));
+});
